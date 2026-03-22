@@ -26,6 +26,9 @@ import {
   ArrowLeft,
   CalendarDays,
   MousePointerClick,
+  Settings2,
+  Snowflake,
+  Percent,
 } from "lucide-react";
 import {
   ChartContainer,
