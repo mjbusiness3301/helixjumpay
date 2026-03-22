@@ -39,7 +39,7 @@ export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border overflow-visible">
+    <Sidebar collapsible="icon" className="border-r border-border overflow-visible [--sidebar-width-icon:5rem]">
       <SidebarHeader className="p-4 overflow-visible">
         <div className="flex items-center gap-3 overflow-visible">
           <img src={logo} alt="Logo" className="h-12 w-12 shrink-0 rounded-lg object-contain" />
