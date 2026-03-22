@@ -2,6 +2,7 @@ import {
   LayoutDashboard,
   Users,
   Wallet,
+  ArrowDownToLine,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -27,6 +28,7 @@ import { Button } from "@/components/ui/button";
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Afiliados", url: "/afiliados", icon: Users },
+  { title: "Saques", url: "/saques", icon: ArrowDownToLine },
   { title: "Contas", url: "/contas", icon: Wallet },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
 ];
