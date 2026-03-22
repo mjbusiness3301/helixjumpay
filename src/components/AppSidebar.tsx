@@ -39,10 +39,10 @@ export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border">
+    <Sidebar collapsible="icon" className="border-r border-border overflow-visible">
       <SidebarHeader className="p-4 overflow-visible">
-        <div className="flex items-center gap-3">
-          <img src={logo} alt="Logo" className="h-8 w-8 shrink-0 rounded-lg object-contain" />
+        <div className="flex items-center gap-3 overflow-visible">
+          <img src={logo} alt="Logo" className="h-12 w-12 shrink-0 rounded-lg object-contain" />
           {!collapsed && (
             <span className="text-lg font-bold text-foreground tracking-tight">
               HelixPay
