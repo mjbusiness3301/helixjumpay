@@ -42,7 +42,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-border">
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
-          <img src={logo} alt="Logo" className="h-12 w-12 shrink-0 rounded-lg" />
+          <img src={logo} alt="Logo" className="h-12 w-12 min-w-[3rem] shrink-0 rounded-lg object-contain" />
           {!collapsed && (
             <span className="text-lg font-bold text-foreground tracking-tight">
               HelixPay
