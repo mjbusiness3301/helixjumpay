@@ -526,7 +526,7 @@ export default function Afiliados() {
                             setAffiliates((prev) =>
                               prev.map((a) =>
                                 a.id === affiliate.id
-                                  ? { ...a, status: a.status === "frozen" ? "active" : "frozen" as any }
+                                  ? { ...a, status: (a.status === "frozen" ? "active" : "frozen") as Affiliate["status"] }
                                   : a
                               )
                             );
