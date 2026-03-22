@@ -313,7 +313,6 @@ const Dashboard = () => {
             </ChartContainer>
           </CardContent>
         </Card>
-      </main>
     </div>
   );
 };
