@@ -1,4 +1,4 @@
-import AuthPage from "./pages/AuthPage";
+import AuthPage from "@/pages/AuthPage";
 
 const Index = () => {
   return <AuthPage />;
