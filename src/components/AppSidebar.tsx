@@ -28,11 +28,11 @@ import {
 import { Button } from "@/components/ui/button";
 
 const menuItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Afiliados", url: "/afiliados", icon: Users },
-  { title: "Saques", url: "/saques", icon: ArrowDownToLine },
-  { title: "Contas", url: "/contas", icon: Wallet },
-  { title: "Configurações", url: "/configuracoes", icon: Settings },
+  { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
+  { title: "Afiliados", url: "/admin/afiliados", icon: Users },
+  { title: "Saques", url: "/admin/saques", icon: ArrowDownToLine },
+  { title: "Contas", url: "/admin/contas", icon: Wallet },
+  { title: "Configurações", url: "/admin/configuracoes", icon: Settings },
 ];
 
 export function AppSidebar() {
