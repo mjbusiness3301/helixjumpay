@@ -48,10 +48,10 @@ const generateHourlyData = () => {
 };
 
 const MOCK_STATS = {
-  today: { cadastros: 147, depositos: 63, saldo: 12847.5, valorDepositos: 8420.0 },
-  yesterday: { cadastros: 132, depositos: 58, saldo: 11230.0, valorDepositos: 7350.0 },
-  "7days": { cadastros: 891, depositos: 412, saldo: 78450.25, valorDepositos: 54230.75 },
-  custom: { cadastros: 2341, depositos: 1087, saldo: 198320.0, valorDepositos: 142870.5 },
+  today: { cadastros: 147, depositos: 63, saldo: 12847.5, valorDepositos: 8420.0, lucro: 2526.0 },
+  yesterday: { cadastros: 132, depositos: 58, saldo: 11230.0, valorDepositos: 7350.0, lucro: 2205.0 },
+  "7days": { cadastros: 891, depositos: 412, saldo: 78450.25, valorDepositos: 54230.75, lucro: 16269.23 },
+  custom: { cadastros: 2341, depositos: 1087, saldo: 198320.0, valorDepositos: 142870.5, lucro: 42861.15 },
 };
 
 const chartConfig = {
@@ -112,6 +112,11 @@ const Dashboard = () => {
       ? ((stats.valorDepositos - prevStats.valorDepositos) / prevStats.valorDepositos) * 100
       : 0;
 
+  const lucroDiff =
+    filter === "today"
+      ? ((stats.lucro - prevStats.lucro) / prevStats.lucro) * 100
+      : 0;
+
   const statCards = [
     {
       title: "Total de Cadastros",
@@ -144,6 +149,14 @@ const Dashboard = () => {
       diff: null,
       color: "text-foreground",
       bgIcon: "bg-secondary",
+    },
+    {
+      title: "Lucro Total",
+      value: `R$ ${stats.lucro.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      icon: TrendingUp,
+      diff: lucroDiff,
+      color: "text-primary",
+      bgIcon: "bg-primary/10",
     },
   ];
 
@@ -201,7 +214,7 @@ const Dashboard = () => {
         </div>
 
         {/* Stat Cards */}
-        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {statCards.map((card, i) => (
             <Card
               key={card.title}
