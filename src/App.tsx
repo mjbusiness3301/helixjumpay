@@ -4,9 +4,11 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { AffiliateLayout } from "@/components/AffiliateLayout";
 import Index from "./pages/Index.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import Afiliados from "./pages/Afiliados.tsx";
+import AffiliateDashboard from "./pages/AffiliateDashboard.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -18,9 +20,12 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Login */}
           <Route path="/" element={<Index />} />
+
+          {/* Admin routes */}
           <Route
-            path="/dashboard"
+            path="/admin"
             element={
               <DashboardLayout>
                 <Dashboard />
@@ -28,13 +33,24 @@ const App = () => (
             }
           />
           <Route
-            path="/afiliados"
+            path="/admin/afiliados"
             element={
               <DashboardLayout>
                 <Afiliados />
               </DashboardLayout>
             }
           />
+
+          {/* Affiliate routes */}
+          <Route
+            path="/painel"
+            element={
+              <AffiliateLayout>
+                <AffiliateDashboard />
+              </AffiliateLayout>
+            }
+          />
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

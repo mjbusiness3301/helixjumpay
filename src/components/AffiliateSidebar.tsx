@@ -1,8 +1,5 @@
 import {
   LayoutDashboard,
-  Users,
-  Wallet,
-  ArrowDownToLine,
   Settings,
   LogOut,
   PanelLeftClose,
@@ -28,14 +25,11 @@ import {
 import { Button } from "@/components/ui/button";
 
 const menuItems = [
-  { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-  { title: "Afiliados", url: "/admin/afiliados", icon: Users },
-  { title: "Saques", url: "/admin/saques", icon: ArrowDownToLine },
-  { title: "Contas", url: "/admin/contas", icon: Wallet },
-  { title: "Configurações", url: "/admin/configuracoes", icon: Settings },
+  { title: "Dashboard", url: "/painel", icon: LayoutDashboard },
+  { title: "Configurações", url: "/painel/configuracoes", icon: Settings },
 ];
 
-export function AppSidebar() {
+export function AffiliateSidebar() {
   const { state, toggleSidebar } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
