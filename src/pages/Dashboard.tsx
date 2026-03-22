@@ -108,6 +108,11 @@ const Dashboard = () => {
       ? ((stats.depositos - prevStats.depositos) / prevStats.depositos) * 100
       : 0;
 
+  const valorDepDiff =
+    filter === "today"
+      ? ((stats.valorDepositos - prevStats.valorDepositos) / prevStats.valorDepositos) * 100
+      : 0;
+
   const statCards = [
     {
       title: "Total de Cadastros",
@@ -124,6 +129,14 @@ const Dashboard = () => {
       diff: depositoDiff,
       color: "text-warning",
       bgIcon: "bg-[hsl(var(--warning)/0.1)]",
+    },
+    {
+      title: "Valor de Depósitos",
+      value: `R$ ${stats.valorDepositos.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      icon: DollarSign,
+      diff: valorDepDiff,
+      color: "text-[hsl(200_80%_55%)]",
+      bgIcon: "bg-[hsl(200_80%_55%/0.1)]",
     },
     {
       title: "Saldo em Contas",
