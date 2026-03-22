@@ -50,8 +50,15 @@ const App = () => (
               </DashboardLayout>
             }
           />
+          <Route
+            path="/admin/contas"
+            element={
+              <DashboardLayout>
+                <Contas />
+              </DashboardLayout>
+            }
+          />
 
-          {/* Affiliate routes */}
           <Route
             path="/painel"
             element={
