@@ -48,10 +48,10 @@ const generateHourlyData = () => {
 };
 
 const MOCK_STATS = {
-  today: { cadastros: 147, depositos: 63, saldo: 12847.5, valorDepositos: 8420.0 },
-  yesterday: { cadastros: 132, depositos: 58, saldo: 11230.0, valorDepositos: 7350.0 },
-  "7days": { cadastros: 891, depositos: 412, saldo: 78450.25, valorDepositos: 54230.75 },
-  custom: { cadastros: 2341, depositos: 1087, saldo: 198320.0, valorDepositos: 142870.5 },
+  today: { cadastros: 147, depositos: 63, saldo: 12847.5, valorDepositos: 8420.0, lucro: 2526.0 },
+  yesterday: { cadastros: 132, depositos: 58, saldo: 11230.0, valorDepositos: 7350.0, lucro: 2205.0 },
+  "7days": { cadastros: 891, depositos: 412, saldo: 78450.25, valorDepositos: 54230.75, lucro: 16269.23 },
+  custom: { cadastros: 2341, depositos: 1087, saldo: 198320.0, valorDepositos: 142870.5, lucro: 42861.15 },
 };
 
 const chartConfig = {
