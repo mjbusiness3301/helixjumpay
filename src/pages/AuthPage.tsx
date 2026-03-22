@@ -122,9 +122,9 @@ const AuthPage = () => {
               </div>
             </div>
 
-            <Button type="submit" size="lg" className="w-full mt-2">
-              Entrar
-              <ArrowRight className="ml-1 h-4 w-4" />
+            <Button type="submit" size="lg" className="w-full mt-2" disabled={loading}>
+              {loading ? "Entrando..." : "Entrar"}
+              {!loading && <ArrowRight className="ml-1 h-4 w-4" />}
             </Button>
           </form>
         </div>
