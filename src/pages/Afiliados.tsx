@@ -47,7 +47,7 @@ interface Affiliate {
   depositValue: number;
   balance: number;
   commission: number;
-  status: "active" | "inactive";
+  status: "active" | "inactive" | "frozen";
   joinedAt: string;
   trend: number;
 }
