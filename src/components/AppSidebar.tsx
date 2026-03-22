@@ -41,7 +41,7 @@ export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border [--sidebar-width-icon:5.25rem]">
+    <Sidebar collapsible="icon" className="border-r border-border [--sidebar-width-icon:4rem]">
       <SidebarHeader className="p-4 group-data-[collapsible=icon]:px-3">
         <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
           <img src={logo} alt="Logo" className="h-12 w-12 flex-none rounded-lg object-contain" />
