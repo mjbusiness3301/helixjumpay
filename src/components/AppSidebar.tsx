@@ -1,8 +1,7 @@
 import {
   LayoutDashboard,
-  Link2,
-  DollarSign,
-  BarChart3,
+  Users,
+  Wallet,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -26,9 +25,8 @@ import { Button } from "@/components/ui/button";
 
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Links", url: "/links", icon: Link2 },
-  { title: "Comissões", url: "/comissoes", icon: DollarSign },
-  { title: "Relatórios", url: "/relatorios", icon: BarChart3 },
+  { title: "Afiliados", url: "/afiliados", icon: Users },
+  { title: "Contas", url: "/contas", icon: Wallet },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
 ];
 
