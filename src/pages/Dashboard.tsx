@@ -202,7 +202,7 @@ const Dashboard = () => {
         </div>
 
         {/* Stat Cards */}
-        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {statCards.map((card, i) => (
             <Card
               key={card.title}
