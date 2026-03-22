@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
 import authBg from "@/assets/auth-bg.jpg";
+import logo from "@/assets/logo.png";
 
 const AuthPage = () => {
   const [showPassword, setShowPassword] = useState(false);
