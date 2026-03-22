@@ -496,7 +496,7 @@ export default function Afiliados() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">
                       Cadastros
@@ -511,6 +511,14 @@ export default function Afiliados() {
                     </p>
                     <p className="text-sm font-bold text-foreground">
                       {affiliate.totalDeposits.toLocaleString("pt-BR")}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">
+                      Comissão
+                    </p>
+                    <p className="text-sm font-bold text-foreground">
+                      {affiliate.commission}%
                     </p>
                   </div>
                   <div>
@@ -534,6 +542,18 @@ export default function Afiliados() {
                         currency: "BRL",
                       })}
                     </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">
+                      Lucro
+                    </p>
+                    <p className="text-sm font-bold text-primary">
+                      {(affiliate.depositValue * (affiliate.commission / 100)).toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
+                    </p>
+                  </div>
                   </div>
                 </div>
 
