@@ -323,7 +323,16 @@ export default function Afiliados() {
     null
   );
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", phone: "" });
+  const [step, setStep] = useState<1 | 2>(1);
+  const [form, setForm] = useState({ name: "", email: "", commission: "" });
+
+  const handleDialogChange = (open: boolean) => {
+    setDialogOpen(open);
+    if (!open) {
+      setStep(1);
+      setForm({ name: "", email: "", commission: "" });
+    }
+  };
 
   if (selectedAffiliate) {
     return (
@@ -344,7 +353,7 @@ export default function Afiliados() {
           </p>
         </div>
 
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog open={dialogOpen} onOpenChange={handleDialogChange}>
           <DialogTrigger asChild>
             <Button className="gap-2">
               <UserPlus className="h-4 w-4" />
@@ -353,52 +362,92 @@ export default function Afiliados() {
           </DialogTrigger>
           <DialogContent className="bg-card border-border">
             <DialogHeader>
-              <DialogTitle>Novo Afiliado</DialogTitle>
+              <DialogTitle>
+                {step === 1 ? "Novo Afiliado" : "Comissão por Depósito"}
+              </DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 pt-2">
-              <div className="space-y-2">
-                <Label htmlFor="af-name">Nome</Label>
-                <Input
-                  id="af-name"
-                  placeholder="Nome completo"
-                  value={form.name}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, name: e.target.value }))
-                  }
-                />
+
+            {step === 1 ? (
+              <div className="space-y-4 pt-2">
+                <div className="space-y-2">
+                  <Label htmlFor="af-name">Nome</Label>
+                  <Input
+                    id="af-name"
+                    placeholder="Nome completo"
+                    value={form.name}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, name: e.target.value }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="af-email">E-mail</Label>
+                  <Input
+                    id="af-email"
+                    type="email"
+                    placeholder="email@exemplo.com"
+                    value={form.email}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, email: e.target.value }))
+                    }
+                  />
+                </div>
+                <Button
+                  className="w-full"
+                  onClick={() => setStep(2)}
+                  disabled={!form.name.trim() || !form.email.trim()}
+                >
+                  Próximo
+                </Button>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="af-email">E-mail</Label>
-                <Input
-                  id="af-email"
-                  type="email"
-                  placeholder="email@exemplo.com"
-                  value={form.email}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, email: e.target.value }))
-                  }
-                />
+            ) : (
+              <div className="space-y-4 pt-2">
+                <p className="text-sm text-muted-foreground">
+                  Defina a porcentagem que <strong className="text-foreground">{form.name}</strong> irá ganhar sobre cada depósito.
+                </p>
+                <div className="space-y-2">
+                  <Label htmlFor="af-commission">Comissão (%)</Label>
+                  <div className="relative">
+                    <Input
+                      id="af-commission"
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.5"
+                      placeholder="Ex: 10"
+                      value={form.commission}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, commission: e.target.value }))
+                      }
+                      className="pr-8"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                      %
+                    </span>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setStep(1)}
+                  >
+                    Voltar
+                  </Button>
+                  <Button
+                    className="flex-1"
+                    disabled={!form.commission}
+                    onClick={() => {
+                      handleDialogChange(false);
+                    }}
+                  >
+                    Cadastrar
+                  </Button>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="af-phone">Telefone</Label>
-                <Input
-                  id="af-phone"
-                  placeholder="(00) 00000-0000"
-                  value={form.phone}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, phone: e.target.value }))
-                  }
-                />
-              </div>
-              <Button
-                className="w-full"
-                onClick={() => {
-                  setDialogOpen(false);
-                  setForm({ name: "", email: "", phone: "" });
-                }}
-              >
-                Cadastrar
-              </Button>
+            )}
+          </DialogContent>
+        </Dialog>
             </div>
           </DialogContent>
         </Dialog>
