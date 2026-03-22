@@ -40,9 +40,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-border">
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-            <span className="text-lg font-extrabold text-primary">A</span>
-          </div>
+          <img src={logo} alt="Logo" className="h-9 w-9 shrink-0 rounded-lg" />
           {!collapsed && (
             <span className="text-lg font-bold text-foreground tracking-tight">
               Afiliados
