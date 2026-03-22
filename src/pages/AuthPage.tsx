@@ -4,12 +4,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import authBg from "@/assets/auth-bg.jpg";
 import logo from "@/assets/logo.png";
 
+// Mock users — substituir por autenticação real
+const MOCK_USERS = [
+  { email: "admin@helixpay.com", password: "admin123", role: "admin" },
+  { email: "carlos@email.com", password: "123456", role: "affiliate" },
+  { email: "ana@email.com", password: "123456", role: "affiliate" },
+];
+
 const AuthPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const [form, setForm] = useState({
     email: "",
@@ -22,7 +32,28 @@ const AuthPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: integrar autenticação
+    setLoading(true);
+
+    setTimeout(() => {
+      const user = MOCK_USERS.find(
+        (u) => u.email === form.email && u.password === form.password
+      );
+
+      if (user) {
+        if (user.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/painel");
+        }
+      } else {
+        toast({
+          title: "Credenciais inválidas",
+          description: "E-mail ou senha incorretos.",
+          variant: "destructive",
+        });
+      }
+      setLoading(false);
+    }, 600);
   };
 
   return (
