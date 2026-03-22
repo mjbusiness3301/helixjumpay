@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard.tsx";
 import Afiliados from "./pages/Afiliados.tsx";
 import AffiliateDashboard from "./pages/AffiliateDashboard.tsx";
 import Saques from "./pages/Saques.tsx";
+import Contas from "./pages/Contas.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -49,8 +50,15 @@ const App = () => (
               </DashboardLayout>
             }
           />
+          <Route
+            path="/admin/contas"
+            element={
+              <DashboardLayout>
+                <Contas />
+              </DashboardLayout>
+            }
+          />
 
-          {/* Affiliate routes */}
           <Route
             path="/painel"
             element={
