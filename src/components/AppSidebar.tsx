@@ -39,10 +39,10 @@ export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border overflow-visible [--sidebar-width-icon:5rem]">
-      <SidebarHeader className="p-4 overflow-visible">
-        <div className="flex items-center gap-3 overflow-visible">
-          <img src={logo} alt="Logo" className="h-12 w-12 shrink-0 rounded-lg object-contain" />
+    <Sidebar collapsible="icon" className="border-r border-border [--sidebar-width-icon:5.25rem]">
+      <SidebarHeader className="p-4 group-data-[collapsible=icon]:px-3">
+        <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
+          <img src={logo} alt="Logo" className="h-12 w-12 flex-none rounded-lg object-contain" />
           {!collapsed && (
             <span className="text-lg font-bold text-foreground tracking-tight">
               HelixPay
@@ -69,7 +69,7 @@ export function AppSidebar() {
                       activeClassName="bg-primary/10 text-primary font-medium"
                     >
                       <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                      {!collapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
