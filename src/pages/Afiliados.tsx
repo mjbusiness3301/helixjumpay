@@ -554,7 +554,6 @@ export default function Afiliados() {
                       })}
                     </p>
                   </div>
-                  </div>
                 </div>
 
                 <div className="flex items-center gap-1 mt-3 pt-3 border-t border-border/40">
