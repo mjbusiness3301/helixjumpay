@@ -68,17 +68,9 @@ const AuthPage = () => {
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-sm text-foreground">
-                  Senha
-                </Label>
-                <button
-                  type="button"
-                  className="text-xs text-primary hover:text-primary/80 transition-colors"
-                >
-                  Esqueceu a senha?
-                </button>
-              </div>
+              <Label htmlFor="password" className="text-sm text-foreground">
+                Senha
+              </Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
