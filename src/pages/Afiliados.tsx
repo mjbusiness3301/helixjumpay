@@ -341,6 +341,8 @@ export default function Afiliados() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
   const [form, setForm] = useState({ name: "", email: "", commission: "" });
+  const [commissionDialog, setCommissionDialog] = useState<{ open: boolean; affiliate: Affiliate | null; value: string }>({ open: false, affiliate: null, value: "" });
+  const [affiliates, setAffiliates] = useState(MOCK_AFFILIATES);
 
   const handleDialogChange = (open: boolean) => {
     setDialogOpen(open);
