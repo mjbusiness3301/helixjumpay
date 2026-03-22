@@ -1,8 +1,7 @@
 import {
   LayoutDashboard,
-  Link2,
-  DollarSign,
-  BarChart3,
+  Users,
+  Wallet,
   Settings,
   LogOut,
 } from "lucide-react";
