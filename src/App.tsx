@@ -9,6 +9,7 @@ import Index from "./pages/Index.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import Afiliados from "./pages/Afiliados.tsx";
 import AffiliateDashboard from "./pages/AffiliateDashboard.tsx";
+import Saques from "./pages/Saques.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,14 @@ const App = () => (
             element={
               <DashboardLayout>
                 <Afiliados />
+              </DashboardLayout>
+            }
+          />
+          <Route
+            path="/admin/saques"
+            element={
+              <DashboardLayout>
+                <Saques />
               </DashboardLayout>
             }
           />
