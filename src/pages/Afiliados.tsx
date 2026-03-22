@@ -11,6 +11,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Users,
   UserPlus,
   TrendingUp,
@@ -20,6 +26,9 @@ import {
   ArrowLeft,
   CalendarDays,
   MousePointerClick,
+  Settings2,
+  Snowflake,
+  Percent,
 } from "lucide-react";
 import {
   ChartContainer,
@@ -38,7 +47,7 @@ interface Affiliate {
   depositValue: number;
   balance: number;
   commission: number;
-  status: "active" | "inactive";
+  status: "active" | "inactive" | "frozen";
   joinedAt: string;
   trend: number;
 }
@@ -332,6 +341,8 @@ export default function Afiliados() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
   const [form, setForm] = useState({ name: "", email: "", commission: "" });
+  const [commissionDialog, setCommissionDialog] = useState<{ open: boolean; affiliate: Affiliate | null; value: string }>({ open: false, affiliate: null, value: "" });
+  const [affiliates, setAffiliates] = useState(MOCK_AFFILIATES);
 
   const handleDialogChange = (open: boolean) => {
     setDialogOpen(open);
@@ -458,7 +469,7 @@ export default function Afiliados() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {MOCK_AFFILIATES.map((affiliate) => {
+        {affiliates.map((affiliate) => {
           const isPositive = affiliate.trend >= 0;
           return (
             <Card
@@ -485,15 +496,57 @@ export default function Afiliados() {
                       </p>
                     </div>
                   </div>
-                  <span
-                    className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                      affiliate.status === "active"
-                        ? "bg-primary/15 text-primary"
-                        : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {affiliate.status === "active" ? "Ativo" : "Inativo"}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
+                        affiliate.status === "active"
+                          ? "bg-primary/15 text-primary"
+                          : affiliate.status === "frozen"
+                            ? "bg-blue-500/15 text-blue-400"
+                            : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {affiliate.status === "active" ? "Ativo" : affiliate.status === "frozen" ? "Congelado" : "Inativo"}
+                    </span>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Settings2 className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="bg-card border-border">
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setAffiliates((prev) =>
+                              prev.map((a) =>
+                                a.id === affiliate.id
+                                  ? { ...a, status: (a.status === "frozen" ? "active" : "frozen") as Affiliate["status"] }
+                                  : a
+                              )
+                            );
+                          }}
+                        >
+                          <Snowflake className="h-4 w-4 mr-2" />
+                          {affiliate.status === "frozen" ? "Descongelar" : "Congelar"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setCommissionDialog({ open: true, affiliate, value: String(affiliate.commission) });
+                          }}
+                        >
+                          <Percent className="h-4 w-4 mr-2" />
+                          Ajustar Comissão
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
@@ -574,6 +627,54 @@ export default function Afiliados() {
           );
         })}
       </div>
+
+      {/* Dialog de ajuste de comissão */}
+      <Dialog open={commissionDialog.open} onOpenChange={(open) => !open && setCommissionDialog({ open: false, affiliate: null, value: "" })}>
+        <DialogContent className="bg-card border-border">
+          <DialogHeader>
+            <DialogTitle>Ajustar Comissão</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <p className="text-sm text-muted-foreground">
+              Defina a nova comissão para <strong className="text-foreground">{commissionDialog.affiliate?.name}</strong>.
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="edit-commission">Comissão (%)</Label>
+              <div className="relative">
+                <Input
+                  id="edit-commission"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.5"
+                  value={commissionDialog.value}
+                  onChange={(e) => setCommissionDialog((prev) => ({ ...prev, value: e.target.value }))}
+                  className="pr-8"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
+              </div>
+            </div>
+            <Button
+              className="w-full"
+              disabled={!commissionDialog.value}
+              onClick={() => {
+                if (commissionDialog.affiliate) {
+                  setAffiliates((prev) =>
+                    prev.map((a) =>
+                      a.id === commissionDialog.affiliate!.id
+                        ? { ...a, commission: Number(commissionDialog.value) }
+                        : a
+                    )
+                  );
+                }
+                setCommissionDialog({ open: false, affiliate: null, value: "" });
+              }}
+            >
+              Salvar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
