@@ -37,6 +37,7 @@ interface Affiliate {
   totalDeposits: number;
   depositValue: number;
   balance: number;
+  commission: number;
   status: "active" | "inactive";
   joinedAt: string;
   trend: number;
@@ -52,6 +53,7 @@ const MOCK_AFFILIATES: Affiliate[] = [
     totalDeposits: 89,
     depositValue: 23450.0,
     balance: 3120.5,
+    commission: 15,
     status: "active",
     joinedAt: "2024-01-15",
     trend: 12.4,
@@ -65,6 +67,7 @@ const MOCK_AFFILIATES: Affiliate[] = [
     totalDeposits: 134,
     depositValue: 41280.0,
     balance: 5430.0,
+    commission: 12,
     status: "active",
     joinedAt: "2024-02-08",
     trend: 18.7,
@@ -78,6 +81,7 @@ const MOCK_AFFILIATES: Affiliate[] = [
     totalDeposits: 28,
     depositValue: 7890.0,
     balance: 940.0,
+    commission: 10,
     status: "inactive",
     joinedAt: "2024-03-22",
     trend: -5.2,
@@ -91,6 +95,7 @@ const MOCK_AFFILIATES: Affiliate[] = [
     totalDeposits: 198,
     depositValue: 67340.0,
     balance: 8720.0,
+    commission: 18,
     status: "active",
     joinedAt: "2023-11-05",
     trend: 24.1,
@@ -104,6 +109,7 @@ const MOCK_AFFILIATES: Affiliate[] = [
     totalDeposits: 52,
     depositValue: 14670.0,
     balance: 1890.0,
+    commission: 8,
     status: "active",
     joinedAt: "2024-04-10",
     trend: 8.3,
@@ -117,6 +123,7 @@ const MOCK_AFFILIATES: Affiliate[] = [
     totalDeposits: 11,
     depositValue: 2340.0,
     balance: 310.0,
+    commission: 5,
     status: "inactive",
     joinedAt: "2024-05-18",
     trend: -12.8,
@@ -489,7 +496,7 @@ export default function Afiliados() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">
                       Cadastros
@@ -504,6 +511,14 @@ export default function Afiliados() {
                     </p>
                     <p className="text-sm font-bold text-foreground">
                       {affiliate.totalDeposits.toLocaleString("pt-BR")}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">
+                      Comissão
+                    </p>
+                    <p className="text-sm font-bold text-foreground">
+                      {affiliate.commission}%
                     </p>
                   </div>
                   <div>
@@ -523,6 +538,17 @@ export default function Afiliados() {
                     </p>
                     <p className="text-sm font-bold text-foreground">
                       {affiliate.balance.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">
+                      Lucro
+                    </p>
+                    <p className="text-sm font-bold text-primary">
+                      {(affiliate.depositValue * (affiliate.commission / 100)).toLocaleString("pt-BR", {
                         style: "currency",
                         currency: "BRL",
                       })}
