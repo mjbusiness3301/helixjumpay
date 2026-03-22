@@ -28,7 +28,6 @@ import {
   CalendarDays,
   TrendingUp,
   TrendingDown,
-  LogOut,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -49,10 +48,10 @@ const generateHourlyData = () => {
 };
 
 const MOCK_STATS = {
-  today: { cadastros: 147, depositos: 63, saldo: 12847.5 },
-  yesterday: { cadastros: 132, depositos: 58, saldo: 11230.0 },
-  "7days": { cadastros: 891, depositos: 412, saldo: 78450.25 },
-  custom: { cadastros: 2341, depositos: 1087, saldo: 198320.0 },
+  today: { cadastros: 147, depositos: 63, saldo: 12847.5, valorDepositos: 8420.0 },
+  yesterday: { cadastros: 132, depositos: 58, saldo: 11230.0, valorDepositos: 7350.0 },
+  "7days": { cadastros: 891, depositos: 412, saldo: 78450.25, valorDepositos: 54230.75 },
+  custom: { cadastros: 2341, depositos: 1087, saldo: 198320.0, valorDepositos: 142870.5 },
 };
 
 const chartConfig = {
@@ -108,6 +107,11 @@ const Dashboard = () => {
       ? ((stats.depositos - prevStats.depositos) / prevStats.depositos) * 100
       : 0;
 
+  const valorDepDiff =
+    filter === "today"
+      ? ((stats.valorDepositos - prevStats.valorDepositos) / prevStats.valorDepositos) * 100
+      : 0;
+
   const statCards = [
     {
       title: "Total de Cadastros",
@@ -126,6 +130,14 @@ const Dashboard = () => {
       bgIcon: "bg-[hsl(var(--warning)/0.1)]",
     },
     {
+      title: "Valor de Depósitos",
+      value: `R$ ${stats.valorDepositos.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      icon: DollarSign,
+      diff: valorDepDiff,
+      color: "text-[hsl(200_80%_55%)]",
+      bgIcon: "bg-[hsl(200_80%_55%/0.1)]",
+    },
+    {
       title: "Saldo em Contas",
       value: `R$ ${stats.saldo.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
       icon: DollarSign,
@@ -136,27 +148,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-border bg-card/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
-              <span className="text-lg font-extrabold text-primary">A</span>
-            </div>
-            <span className="text-lg font-bold text-foreground tracking-tight">
-              Afiliados
-            </span>
-          </div>
-          <Button variant="ghost" size="sm" className="text-muted-foreground">
-            <LogOut className="mr-2 h-4 w-4" />
-            Sair
-          </Button>
-        </div>
-      </header>
-
-      {/* Content */}
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <div className="px-4 py-8 sm:px-6 lg:px-8">
         {/* Greeting + Filters */}
         <div className="mb-8 animate-reveal-up">
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
@@ -209,7 +201,7 @@ const Dashboard = () => {
         </div>
 
         {/* Stat Cards */}
-        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {statCards.map((card, i) => (
             <Card
               key={card.title}
@@ -320,7 +312,6 @@ const Dashboard = () => {
             </ChartContainer>
           </CardContent>
         </Card>
-      </main>
     </div>
   );
 };
