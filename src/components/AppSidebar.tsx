@@ -47,9 +47,12 @@ export function AppSidebar() {
         <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
           <img src={logo} alt="Logo" className="h-12 w-12 flex-none rounded-lg object-contain" />
           {!collapsed && (
-            <span className="text-lg font-bold text-foreground tracking-tight">
-              HelixPay
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-lg font-bold text-foreground tracking-tight">
+                HelixPay
+              </span>
+              <Crown className="h-4 w-4 text-amber-500" />
+            </div>
           )}
         </div>
       </SidebarHeader>
