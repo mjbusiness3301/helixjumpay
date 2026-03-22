@@ -38,9 +38,7 @@ const AuthPage = () => {
       <div className="relative z-10 w-full max-w-md px-4">
         <div className="animate-reveal-up rounded-2xl border border-border bg-card/90 p-8 shadow-2xl backdrop-blur-md">
           <div className="mb-8 text-center opacity-0 animate-reveal-up">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 glow-primary">
-              <span className="text-2xl font-extrabold text-primary">A</span>
-            </div>
+            <img src={logo} alt="Logo" className="mx-auto mb-1 h-16 w-16 rounded-xl" />
             <h1 className="text-balance text-2xl font-bold tracking-tight text-foreground">
               Bem-vindo de volta
             </h1>
