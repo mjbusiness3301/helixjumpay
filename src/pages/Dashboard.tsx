@@ -112,6 +112,11 @@ const Dashboard = () => {
       ? ((stats.valorDepositos - prevStats.valorDepositos) / prevStats.valorDepositos) * 100
       : 0;
 
+  const lucroDiff =
+    filter === "today"
+      ? ((stats.lucro - prevStats.lucro) / prevStats.lucro) * 100
+      : 0;
+
   const statCards = [
     {
       title: "Total de Cadastros",
@@ -144,6 +149,14 @@ const Dashboard = () => {
       diff: null,
       color: "text-foreground",
       bgIcon: "bg-secondary",
+    },
+    {
+      title: "Lucro Total",
+      value: `R$ ${stats.lucro.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      icon: TrendingUp,
+      diff: lucroDiff,
+      color: "text-primary",
+      bgIcon: "bg-primary/10",
     },
   ];
 
