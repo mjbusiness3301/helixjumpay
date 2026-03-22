@@ -5,6 +5,7 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
+import logo from "@/assets/logo.png";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 
