@@ -43,7 +43,7 @@ export function AppSidebar() {
           <img src={logo} alt="Logo" className="h-12 w-12 shrink-0 rounded-lg" />
           {!collapsed && (
             <span className="text-lg font-bold text-foreground tracking-tight">
-              Afiliados
+              HelixPay
             </span>
           )}
         </div>
