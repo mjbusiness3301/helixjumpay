@@ -52,7 +52,7 @@ const Dashboard = () => {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const { data: affiliates = [], isLoading } = useAffiliates();
 
-  const hourlyData = useMemo(() => generateHourlyData(), [filter]);
+  const { hourlyData } = useHourlyChartData();
 
   // Compute real stats from affiliates
   const totalCadastros = affiliates.reduce((sum, a) => sum + a.total_registrations, 0);
