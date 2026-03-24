@@ -197,10 +197,15 @@ export default function Afiliados() {
   };
 
   const handleCreate = async () => {
+    if (form.password.length < 6) {
+      toast({ title: "Senha muito curta", description: "A senha deve ter no mínimo 6 caracteres.", variant: "destructive" });
+      return;
+    }
     try {
       await createAffiliate.mutateAsync({
         name: form.name,
         email: form.email,
+        password: form.password,
         commission: Number(form.commission),
       });
       toast({ title: "Afiliado cadastrado com sucesso!" });
