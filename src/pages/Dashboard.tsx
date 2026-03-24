@@ -31,20 +31,9 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { DateRange } from "react-day-picker";
 import { useAffiliates } from "@/hooks/useAffiliates";
+import { useHourlyChartData } from "@/hooks/useActivityLogs";
 
 type FilterType = "today" | "yesterday" | "7days" | "custom";
-
-const generateHourlyData = () => {
-  const hours = [];
-  for (let i = 0; i < 24; i++) {
-    hours.push({
-      hour: `${String(i).padStart(2, "0")}:00`,
-      cadastros: Math.floor(Math.random() * 18 + 2),
-      depositos: Math.floor(Math.random() * 12 + 1),
-    });
-  }
-  return hours;
-};
 
 const chartConfig = {
   cadastros: {
