@@ -30,7 +30,7 @@ import {
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { DateRange } from "react-day-picker";
-import { useAffiliates } from "@/hooks/useAffiliates";
+import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { useHourlyChartData } from "@/hooks/useActivityLogs";
 
 type FilterType = "today" | "yesterday" | "7days" | "custom";
