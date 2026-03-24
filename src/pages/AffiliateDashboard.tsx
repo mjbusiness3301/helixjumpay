@@ -46,7 +46,6 @@ export default function AffiliateDashboard() {
   const [withdrawDialog, setWithdrawDialog] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [copied, setCopied] = useState(false);
-  const hourlyData = useMemo(() => generateHourlyData(), []);
   const createWithdrawal = useCreateWithdrawal();
 
   const { data: affiliate, isLoading } = useQuery({
