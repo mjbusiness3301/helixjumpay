@@ -5,15 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 import authBg from "@/assets/auth-bg.jpg";
 import logo from "@/assets/logo.png";
-
-// Mock users — substituir por autenticação real
-const MOCK_USERS = [
-  { email: "admin@helixpay.com", password: "admin123", role: "admin" },
-  { email: "carlos@email.com", password: "123456", role: "affiliate" },
-  { email: "ana@email.com", password: "123456", role: "affiliate" },
-];
 
 const AuthPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -30,30 +24,49 @@ const AuthPage = () => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    setTimeout(() => {
-      const user = MOCK_USERS.find(
-        (u) => u.email === form.email && u.password === form.password
-      );
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: form.email,
+        password: form.password,
+      });
 
-      if (user) {
-        if (user.role === "admin") {
-          navigate("/admin");
-        } else {
-          navigate("/painel");
-        }
-      } else {
+      if (error) {
         toast({
           title: "Credenciais inválidas",
           description: "E-mail ou senha incorretos.",
           variant: "destructive",
         });
+        setLoading(false);
+        return;
       }
+
+      const userId = data.user.id;
+
+      // Check if admin
+      const { data: adminData } = await supabase
+        .from("admins")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (adminData) {
+        navigate("/admin");
+      } else {
+        navigate("/painel");
+      }
+    } catch {
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao fazer login.",
+        variant: "destructive",
+      });
+    } finally {
       setLoading(false);
-    }, 600);
+    }
   };
 
   return (

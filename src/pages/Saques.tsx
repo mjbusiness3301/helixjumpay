@@ -16,29 +16,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { ArrowDownToLine, CheckCircle2, XCircle, Clock, Search } from "lucide-react";
+import { ArrowDownToLine, CheckCircle2, XCircle, Clock, Search, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useWithdrawals, useUpdateWithdrawalStatus } from "@/hooks/useWithdrawals";
 
 type WithdrawalStatus = "pending" | "approved" | "rejected";
-
-interface Withdrawal {
-  id: string;
-  affiliateName: string;
-  affiliateEmail: string;
-  amount: number;
-  requestedAt: string;
-  status: WithdrawalStatus;
-}
-
-const MOCK_WITHDRAWALS: Withdrawal[] = [
-  { id: "w1", affiliateName: "Carlos Mendes", affiliateEmail: "carlos@email.com", amount: 1250.00, requestedAt: "2026-03-22T14:30:00", status: "pending" },
-  { id: "w2", affiliateName: "Ana Souza", affiliateEmail: "ana@email.com", amount: 870.50, requestedAt: "2026-03-22T10:15:00", status: "pending" },
-  { id: "w3", affiliateName: "Carlos Mendes", affiliateEmail: "carlos@email.com", amount: 2100.00, requestedAt: "2026-03-21T18:45:00", status: "approved" },
-  { id: "w4", affiliateName: "Pedro Lima", affiliateEmail: "pedro@email.com", amount: 450.00, requestedAt: "2026-03-21T09:20:00", status: "rejected" },
-  { id: "w5", affiliateName: "Ana Souza", affiliateEmail: "ana@email.com", amount: 1680.00, requestedAt: "2026-03-20T16:00:00", status: "approved" },
-  { id: "w6", affiliateName: "Pedro Lima", affiliateEmail: "pedro@email.com", amount: 320.75, requestedAt: "2026-03-19T11:30:00", status: "pending" },
-];
 
 const statusConfig: Record<WithdrawalStatus, { label: string; variant: "default" | "secondary" | "destructive"; icon: typeof Clock }> = {
   pending: { label: "Pendente", variant: "secondary", icon: Clock },
@@ -47,7 +30,8 @@ const statusConfig: Record<WithdrawalStatus, { label: string; variant: "default"
 };
 
 export default function Saques() {
-  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>(MOCK_WITHDRAWALS);
+  const { data: withdrawals = [], isLoading } = useWithdrawals();
+  const updateStatus = useUpdateWithdrawalStatus();
   const [filter, setFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [confirmDialog, setConfirmDialog] = useState<{ id: string; action: "approve" | "reject" } | null>(null);
@@ -55,25 +39,30 @@ export default function Saques() {
 
   const filtered = withdrawals.filter((w) => {
     const matchesStatus = filter === "all" || w.status === filter;
-    const matchesSearch = w.affiliateName.toLowerCase().includes(search.toLowerCase()) ||
-      w.affiliateEmail.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = w.affiliate_name.toLowerCase().includes(search.toLowerCase()) ||
+      w.affiliate_email.toLowerCase().includes(search.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
   const pendingTotal = withdrawals
     .filter((w) => w.status === "pending")
-    .reduce((sum, w) => sum + w.amount, 0);
+    .reduce((sum, w) => sum + Number(w.amount), 0);
 
-  const handleAction = () => {
+  const handleAction = async () => {
     if (!confirmDialog) return;
     const { id, action } = confirmDialog;
-    setWithdrawals((prev) =>
-      prev.map((w) => (w.id === id ? { ...w, status: action === "approve" ? "approved" : "rejected" } : w))
-    );
-    toast({
-      title: action === "approve" ? "Saque aprovado" : "Saque rejeitado",
-      description: action === "approve" ? "O valor será enviado ao afiliado." : "A solicitação foi recusada.",
-    });
+    try {
+      await updateStatus.mutateAsync({
+        id,
+        status: action === "approve" ? "approved" : "rejected",
+      });
+      toast({
+        title: action === "approve" ? "Saque aprovado" : "Saque rejeitado",
+        description: action === "approve" ? "O valor será enviado ao afiliado." : "A solicitação foi recusada.",
+      });
+    } catch (err: any) {
+      toast({ title: "Erro", description: err.message, variant: "destructive" });
+    }
     setConfirmDialog(null);
   };
 
@@ -82,6 +71,14 @@ export default function Saques() {
     return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" }) +
       " às " + d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6 animate-reveal-up">
@@ -105,7 +102,6 @@ export default function Saques() {
         </Card>
       </div>
 
-      {/* Filters */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -129,7 +125,6 @@ export default function Saques() {
         </Select>
       </div>
 
-      {/* Table */}
       <Card className="bg-card border-border/60 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -156,13 +151,13 @@ export default function Saques() {
                 return (
                   <tr key={w.id} className="border-b border-border/20 last:border-0 hover:bg-secondary/30 transition-colors">
                     <td className="px-5 py-4">
-                      <p className="font-medium text-foreground">{w.affiliateName}</p>
-                      <p className="text-xs text-muted-foreground">{w.affiliateEmail}</p>
+                      <p className="font-medium text-foreground">{w.affiliate_name}</p>
+                      <p className="text-xs text-muted-foreground">{w.affiliate_email}</p>
                     </td>
                     <td className="px-5 py-4 font-semibold text-foreground tabular-nums">
-                      {w.amount.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                      {Number(w.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                     </td>
-                    <td className="px-5 py-4 text-muted-foreground">{formatDate(w.requestedAt)}</td>
+                    <td className="px-5 py-4 text-muted-foreground">{formatDate(w.requested_at)}</td>
                     <td className="px-5 py-4">
                       <Badge variant={cfg.variant} className="gap-1">
                         <StatusIcon className="h-3 w-3" />
@@ -203,7 +198,6 @@ export default function Saques() {
         </div>
       </Card>
 
-      {/* Confirm Dialog */}
       <Dialog open={!!confirmDialog} onOpenChange={() => setConfirmDialog(null)}>
         <DialogContent className="bg-card border-border">
           <DialogHeader>
@@ -217,14 +211,13 @@ export default function Saques() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={() => setConfirmDialog(null)}>
-              Cancelar
-            </Button>
+            <Button variant="outline" onClick={() => setConfirmDialog(null)}>Cancelar</Button>
             <Button
               variant={confirmDialog?.action === "approve" ? "default" : "destructive"}
               onClick={handleAction}
+              disabled={updateStatus.isPending}
             >
-              {confirmDialog?.action === "approve" ? "Aprovar" : "Rejeitar"}
+              {updateStatus.isPending ? "Processando..." : confirmDialog?.action === "approve" ? "Aprovar" : "Rejeitar"}
             </Button>
           </div>
         </DialogContent>
