@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { AffiliateLayout } from "@/components/AffiliateLayout";
 import Index from "./pages/Index.tsx";
@@ -21,56 +23,69 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          {/* Login */}
-          <Route path="/" element={<Index />} />
+        <AuthProvider>
+          <Routes>
+            {/* Login */}
+            <Route path="/" element={<Index />} />
 
-          {/* Admin routes */}
-          <Route
-            path="/admin"
-            element={
-              <DashboardLayout>
-                <Dashboard />
-              </DashboardLayout>
-            }
-          />
-          <Route
-            path="/admin/afiliados"
-            element={
-              <DashboardLayout>
-                <Afiliados />
-              </DashboardLayout>
-            }
-          />
-          <Route
-            path="/admin/saques"
-            element={
-              <DashboardLayout>
-                <Saques />
-              </DashboardLayout>
-            }
-          />
-          <Route
-            path="/admin/contas"
-            element={
-              <DashboardLayout>
-                <Contas />
-              </DashboardLayout>
-            }
-          />
+            {/* Admin routes */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <DashboardLayout>
+                    <Dashboard />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/afiliados"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <DashboardLayout>
+                    <Afiliados />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/saques"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <DashboardLayout>
+                    <Saques />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/contas"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <DashboardLayout>
+                    <Contas />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/painel"
-            element={
-              <AffiliateLayout>
-                <AffiliateDashboard />
-              </AffiliateLayout>
-            }
-          />
+            {/* Affiliate routes */}
+            <Route
+              path="/painel"
+              element={
+                <ProtectedRoute requiredRole="affiliate">
+                  <AffiliateLayout>
+                    <AffiliateDashboard />
+                  </AffiliateLayout>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
