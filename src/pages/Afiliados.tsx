@@ -192,7 +192,7 @@ export default function Afiliados() {
     setDialogOpen(open);
     if (!open) {
       setStep(1);
-      setForm({ name: "", email: "", commission: "" });
+      setForm({ name: "", email: "", password: "", commission: "" });
     }
   };
 
