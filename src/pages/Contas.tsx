@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Shield, Users, Gamepad2, Loader2 } from "lucide-react";
 import { useAdmins } from "@/hooks/useAdmins";
 import { useAffiliates } from "@/hooks/useAffiliates";
+import { useLeads } from "@/hooks/useLeads";
 
 type AccountRole = "admin" | "affiliate" | "player";
 
@@ -88,8 +89,9 @@ export default function Contas() {
 
   const { data: admins = [], isLoading: loadingAdmins } = useAdmins();
   const { data: affiliates = [], isLoading: loadingAffiliates } = useAffiliates();
+  const { data: leads = [], isLoading: loadingLeads } = useLeads();
 
-  const isLoading = loadingAdmins || loadingAffiliates;
+  const isLoading = loadingAdmins || loadingAffiliates || loadingLeads;
 
   // Merge admins + affiliates into unified account list
   const allAccounts: AccountRow[] = [
@@ -109,6 +111,14 @@ export default function Contas() {
       status: a.status,
       createdAt: a.created_at,
     })),
+    ...leads.map((l) => ({
+      id: l.id,
+      name: l.name || "Sem nome",
+      email: l.phone || "—",
+      role: "player" as AccountRole,
+      status: "active",
+      createdAt: l.created_at,
+    })),
   ];
 
   const filtered = allAccounts.filter((a) => {
@@ -123,6 +133,7 @@ export default function Contas() {
     all: allAccounts.length,
     admin: allAccounts.filter((a) => a.role === "admin").length,
     affiliate: allAccounts.filter((a) => a.role === "affiliate").length,
+    player: allAccounts.filter((a) => a.role === "player").length,
   };
 
   if (isLoading) {
@@ -159,6 +170,7 @@ export default function Contas() {
           <TabsTrigger value="all">Todas ({counts.all})</TabsTrigger>
           <TabsTrigger value="admin">Administradores ({counts.admin})</TabsTrigger>
           <TabsTrigger value="affiliate">Afiliados ({counts.affiliate})</TabsTrigger>
+          <TabsTrigger value="player">Jogadores ({counts.player})</TabsTrigger>
         </TabsList>
 
         <TabsContent value={tab} className="mt-4">
