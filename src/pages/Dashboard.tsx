@@ -50,19 +50,13 @@ const Dashboard = () => {
   const [filter, setFilter] = useState<FilterType>("today");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const { data: affiliates = [], isLoading } = useAffiliates();
-
+  const { data: stats, isLoading } = useDashboardStats();
   const { hourlyData } = useHourlyChartData();
 
-  // Compute real stats from affiliates
-  const totalCadastros = affiliates.reduce((sum, a) => sum + a.total_registrations, 0);
-  const totalDepositos = affiliates.reduce((sum, a) => sum + a.total_deposits, 0);
-  const totalSaldo = affiliates.reduce((sum, a) => sum + Number(a.balance), 0);
-  const totalValorDepositos = affiliates.reduce((sum, a) => sum + Number(a.deposit_value), 0);
-  const totalLucro = affiliates.reduce(
-    (sum, a) => sum + Number(a.deposit_value) * (Number(a.commission) / 100),
-    0
-  );
+  const totalCadastros = stats?.totalCadastros ?? 0;
+  const totalDepositos = stats?.totalDepositos ?? 0;
+  const totalValorDepositos = stats?.totalValorDepositos ?? 0;
+  const totalSaldo = stats?.totalSaldo ?? 0;
 
   const filterLabels: Record<FilterType, string> = {
     today: "Hoje",
