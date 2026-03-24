@@ -111,6 +111,14 @@ export default function Contas() {
       status: a.status,
       createdAt: a.created_at,
     })),
+    ...leads.map((l) => ({
+      id: l.id,
+      name: l.name || "Sem nome",
+      email: l.phone || "—",
+      role: "player" as AccountRole,
+      status: "active",
+      createdAt: l.created_at,
+    })),
   ];
 
   const filtered = allAccounts.filter((a) => {
