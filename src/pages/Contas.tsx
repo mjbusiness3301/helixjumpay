@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Shield, Users, Gamepad2, Loader2 } from "lucide-react";
 import { useAdmins } from "@/hooks/useAdmins";
 import { useAffiliates } from "@/hooks/useAffiliates";
+import { useLeads } from "@/hooks/useLeads";
 
 type AccountRole = "admin" | "affiliate" | "player";
 
