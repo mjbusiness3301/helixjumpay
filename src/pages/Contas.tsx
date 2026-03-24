@@ -170,6 +170,7 @@ export default function Contas() {
           <TabsTrigger value="all">Todas ({counts.all})</TabsTrigger>
           <TabsTrigger value="admin">Administradores ({counts.admin})</TabsTrigger>
           <TabsTrigger value="affiliate">Afiliados ({counts.affiliate})</TabsTrigger>
+          <TabsTrigger value="player">Jogadores ({counts.player})</TabsTrigger>
         </TabsList>
 
         <TabsContent value={tab} className="mt-4">
