@@ -24,13 +24,12 @@ import {
   Wallet,
   DollarSign,
   CalendarDays,
-  TrendingUp,
   Loader2,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { DateRange } from "react-day-picker";
-import { useAffiliates } from "@/hooks/useAffiliates";
+import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { useHourlyChartData } from "@/hooks/useActivityLogs";
 
 type FilterType = "today" | "yesterday" | "7days" | "custom";
@@ -50,19 +49,13 @@ const Dashboard = () => {
   const [filter, setFilter] = useState<FilterType>("today");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const { data: affiliates = [], isLoading } = useAffiliates();
-
+  const { data: stats, isLoading } = useDashboardStats();
   const { hourlyData } = useHourlyChartData();
 
-  // Compute real stats from affiliates
-  const totalCadastros = affiliates.reduce((sum, a) => sum + a.total_registrations, 0);
-  const totalDepositos = affiliates.reduce((sum, a) => sum + a.total_deposits, 0);
-  const totalSaldo = affiliates.reduce((sum, a) => sum + Number(a.balance), 0);
-  const totalValorDepositos = affiliates.reduce((sum, a) => sum + Number(a.deposit_value), 0);
-  const totalLucro = affiliates.reduce(
-    (sum, a) => sum + Number(a.deposit_value) * (Number(a.commission) / 100),
-    0
-  );
+  const totalCadastros = stats?.totalCadastros ?? 0;
+  const totalDepositos = stats?.totalDepositos ?? 0;
+  const totalValorDepositos = stats?.totalValorDepositos ?? 0;
+  const totalSaldo = stats?.totalSaldo ?? 0;
 
   const filterLabels: Record<FilterType, string> = {
     today: "Hoje",
@@ -116,13 +109,6 @@ const Dashboard = () => {
       icon: DollarSign,
       color: "text-foreground",
       bgIcon: "bg-secondary",
-    },
-    {
-      title: "Lucro Total",
-      value: `R$ ${totalLucro.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
-      icon: TrendingUp,
-      color: "text-primary",
-      bgIcon: "bg-primary/10",
     },
   ];
 
@@ -181,7 +167,7 @@ const Dashboard = () => {
         </Popover>
       </div>
 
-      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map((card, i) => (
           <Card
             key={card.title}
