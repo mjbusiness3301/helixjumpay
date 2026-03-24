@@ -29,7 +29,15 @@ export function useCreateAffiliate() {
         },
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        if (authError.message?.includes("rate limit") || authError.status === 429) {
+          throw new Error("Limite de cadastros excedido. Aguarde alguns minutos e tente novamente.");
+        }
+        if (authError.message?.includes("already registered") || authError.message?.includes("already been registered")) {
+          throw new Error("Este e-mail já está cadastrado no sistema.");
+        }
+        throw authError;
+      }
       if (!authData.user) throw new Error("Falha ao criar conta do afiliado");
 
       // 2. Insert into affiliates table with user_id
