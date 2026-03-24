@@ -181,7 +181,7 @@ export default function Afiliados() {
   const [selectedAffiliate, setSelectedAffiliate] = useState<Affiliate | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
-  const [form, setForm] = useState({ name: "", email: "", commission: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", commission: "" });
   const [commissionDialog, setCommissionDialog] = useState<{ open: boolean; affiliate: Affiliate | null; value: string }>({
     open: false,
     affiliate: null,
@@ -192,15 +192,20 @@ export default function Afiliados() {
     setDialogOpen(open);
     if (!open) {
       setStep(1);
-      setForm({ name: "", email: "", commission: "" });
+      setForm({ name: "", email: "", password: "", commission: "" });
     }
   };
 
   const handleCreate = async () => {
+    if (form.password.length < 6) {
+      toast({ title: "Senha muito curta", description: "A senha deve ter no mínimo 6 caracteres.", variant: "destructive" });
+      return;
+    }
     try {
       await createAffiliate.mutateAsync({
         name: form.name,
         email: form.email,
+        password: form.password,
         commission: Number(form.commission),
       });
       toast({ title: "Afiliado cadastrado com sucesso!" });
@@ -285,7 +290,11 @@ export default function Afiliados() {
                   <Label htmlFor="af-email">E-mail</Label>
                   <Input id="af-email" type="email" placeholder="email@exemplo.com" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
                 </div>
-                <Button className="w-full" onClick={() => setStep(2)} disabled={!form.name.trim() || !form.email.trim()}>
+                <div className="space-y-2">
+                  <Label htmlFor="af-password">Senha</Label>
+                  <Input id="af-password" type="password" placeholder="Mínimo 6 caracteres" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} />
+                </div>
+                <Button className="w-full" onClick={() => setStep(2)} disabled={!form.name.trim() || !form.email.trim() || form.password.length < 6}>
                   Próximo
                 </Button>
               </div>
