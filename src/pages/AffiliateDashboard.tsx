@@ -62,6 +62,8 @@ export default function AffiliateDashboard() {
     enabled: !!user?.id,
   });
 
+  const { hourlyData } = useHourlyChartData(affiliate?.id);
+
   if (isLoading || !affiliate) {
     return (
       <div className="flex items-center justify-center h-64">
