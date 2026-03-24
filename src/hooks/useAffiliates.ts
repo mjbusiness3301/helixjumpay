@@ -20,7 +20,11 @@ export function useCreateAffiliate() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (affiliate: { name: string; email: string; password: string; commission: number }) => {
-      // 1. Create auth user
+      // Save admin session before creating affiliate account
+      const { data: { session: adminSession } } = await supabase.auth.getSession();
+      if (!adminSession) throw new Error("Sessão de admin não encontrada");
+
+      // 1. Create auth user (this will auto-login as the new user)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: affiliate.email,
         password: affiliate.password,
@@ -40,7 +44,13 @@ export function useCreateAffiliate() {
       }
       if (!authData.user) throw new Error("Falha ao criar conta do afiliado");
 
-      // 2. Insert into affiliates table with user_id
+      // 2. Restore admin session immediately
+      await supabase.auth.setSession({
+        access_token: adminSession.access_token,
+        refresh_token: adminSession.refresh_token,
+      });
+
+      // 3. Insert into affiliates table with user_id
       const { data, error } = await supabase
         .from("affiliates")
         .insert({
