@@ -104,21 +104,8 @@ const Dashboard = () => {
       color: "text-[hsl(200_80%_55%)]",
       bgIcon: "bg-[hsl(200_80%_55%/0.1)]",
     },
-    {
-      title: "Saldo em Contas",
-      value: `R$ ${totalSaldo.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
-      icon: DollarSign,
-      color: "text-foreground",
-      bgIcon: "bg-secondary",
-    },
-    {
-      title: "Lucro Total",
-      value: `R$ ${totalLucro.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
-      icon: TrendingUp,
-      color: "text-primary",
-      bgIcon: "bg-primary/10",
-    },
   ];
+
 
   if (isLoading) {
     return (
