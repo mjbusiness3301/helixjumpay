@@ -24,7 +24,6 @@ import {
   Wallet,
   DollarSign,
   CalendarDays,
-  TrendingUp,
   Loader2,
 } from "lucide-react";
 import { format } from "date-fns";
