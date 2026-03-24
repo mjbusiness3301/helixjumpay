@@ -133,6 +133,7 @@ export default function Contas() {
     all: allAccounts.length,
     admin: allAccounts.filter((a) => a.role === "admin").length,
     affiliate: allAccounts.filter((a) => a.role === "affiliate").length,
+    player: allAccounts.filter((a) => a.role === "player").length,
   };
 
   if (isLoading) {
