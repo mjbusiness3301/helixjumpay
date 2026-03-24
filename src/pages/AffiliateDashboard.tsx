@@ -19,6 +19,7 @@ import {
   Link2,
   Copy,
   Check,
+  Loader2,
 } from "lucide-react";
 import {
   ChartContainer,
@@ -26,20 +27,12 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from "recharts";
-
-// Mock affiliate data (would come from auth context in real app)
-const AFFILIATE_DATA = {
-  name: "Carlos Mendes",
-  email: "carlos@email.com",
-  commission: 15,
-  referralCode: "carlos-hx7k2m",
-  totalRegistrations: 147,
-  totalDeposits: 89,
-  depositValue: 23450.0,
-  balance: 3120.5,
-  pendingWithdrawal: 0,
-  trend: 12.4,
-};
+import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
+import { useCreateWithdrawal } from "@/hooks/useWithdrawals";
+import { useToast } from "@/hooks/use-toast";
+import type { Affiliate } from "@/types/database";
 
 function generateHourlyData() {
   return Array.from({ length: 24 }, (_, i) => ({
@@ -55,14 +48,39 @@ const chartConfig = {
 };
 
 export default function AffiliateDashboard() {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [withdrawDialog, setWithdrawDialog] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [copied, setCopied] = useState(false);
   const hourlyData = useMemo(() => generateHourlyData(), []);
+  const createWithdrawal = useCreateWithdrawal();
 
-  const affiliate = AFFILIATE_DATA;
-  const referralLink = `${window.location.origin}/ref/${affiliate.referralCode}`;
-  const earnings = affiliate.depositValue * (affiliate.commission / 100);
+  const { data: affiliate, isLoading } = useQuery({
+    queryKey: ["my-affiliate", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("affiliates")
+        .select("*")
+        .eq("user_id", user!.id)
+        .single();
+      if (error) throw error;
+      return data as Affiliate;
+    },
+    enabled: !!user?.id,
+  });
+
+  if (isLoading || !affiliate) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const referralLink = `${window.location.origin}/ref/${affiliate.id}`;
+  const earnings = Number(affiliate.deposit_value) * (Number(affiliate.commission) / 100);
+  const balance = Number(affiliate.balance);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referralLink);
@@ -70,16 +88,32 @@ export default function AffiliateDashboard() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleWithdraw = async () => {
+    try {
+      await createWithdrawal.mutateAsync({
+        affiliate_id: affiliate.id,
+        affiliate_name: affiliate.name,
+        affiliate_email: affiliate.email,
+        amount: Number(withdrawAmount),
+      });
+      toast({ title: "Solicitação de saque enviada!" });
+      setWithdrawDialog(false);
+      setWithdrawAmount("");
+    } catch (err: any) {
+      toast({ title: "Erro", description: err.message, variant: "destructive" });
+    }
+  };
+
   const stats = [
     {
       label: "Cadastros",
-      value: affiliate.totalRegistrations.toLocaleString("pt-BR"),
+      value: affiliate.total_registrations.toLocaleString("pt-BR"),
       icon: Users,
       trend: affiliate.trend,
     },
     {
       label: "Depósitos",
-      value: affiliate.totalDeposits.toLocaleString("pt-BR"),
+      value: affiliate.total_deposits.toLocaleString("pt-BR"),
       icon: Wallet,
       trend: affiliate.trend * 0.8,
     },
@@ -91,7 +125,7 @@ export default function AffiliateDashboard() {
     },
     {
       label: "Saldo Disponível",
-      value: affiliate.balance.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
+      value: balance.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
       icon: Wallet,
       trend: null,
     },
@@ -99,7 +133,6 @@ export default function AffiliateDashboard() {
 
   return (
     <div className="p-6 space-y-6 animate-reveal-up">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">
@@ -109,16 +142,12 @@ export default function AffiliateDashboard() {
             Acompanhe seu desempenho e ganhos
           </p>
         </div>
-        <Button
-          className="gap-2"
-          onClick={() => setWithdrawDialog(true)}
-        >
+        <Button className="gap-2" onClick={() => setWithdrawDialog(true)}>
           <ArrowDownToLine className="h-4 w-4" />
           Solicitar Saque
         </Button>
       </div>
 
-      {/* Referral Link */}
       <Card className="bg-card border-border/60">
         <CardContent className="p-5">
           <div className="flex items-center gap-3 mb-3">
@@ -132,19 +161,13 @@ export default function AffiliateDashboard() {
             <div className="flex-1 rounded-lg bg-secondary px-4 py-2.5 text-sm text-foreground font-mono truncate border border-border/40">
               {referralLink}
             </div>
-            <Button
-              variant="outline"
-              size="icon"
-              className="shrink-0 h-10 w-10"
-              onClick={handleCopy}
-            >
+            <Button variant="outline" size="icon" className="shrink-0 h-10 w-10" onClick={handleCopy}>
               {copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat) => {
           const isPositive = stat.trend !== null && stat.trend >= 0;
@@ -152,19 +175,13 @@ export default function AffiliateDashboard() {
             <Card key={stat.label} className="bg-card border-border/60 hover:border-primary/30 transition-colors">
               <CardContent className="p-5">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    {stat.label}
-                  </span>
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{stat.label}</span>
                   <stat.icon className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <p className="text-2xl font-bold text-foreground">{stat.value}</p>
                 {stat.trend !== null && (
                   <div className="flex items-center gap-1 mt-2">
-                    {isPositive ? (
-                      <TrendingUp className="h-3 w-3 text-primary" />
-                    ) : (
-                      <TrendingDown className="h-3 w-3 text-destructive" />
-                    )}
+                    {isPositive ? <TrendingUp className="h-3 w-3 text-primary" /> : <TrendingDown className="h-3 w-3 text-destructive" />}
                     <span className={`text-xs font-medium ${isPositive ? "text-primary" : "text-destructive"}`}>
                       {isPositive ? "+" : ""}{stat.trend.toFixed(1)}% vs ontem
                     </span>
@@ -176,7 +193,6 @@ export default function AffiliateDashboard() {
         })}
       </div>
 
-      {/* Chart */}
       <Card className="bg-card border-border/60">
         <CardContent className="p-5">
           <h3 className="text-sm font-semibold text-foreground mb-4">Atividade por Horário</h3>
@@ -203,7 +219,6 @@ export default function AffiliateDashboard() {
         </CardContent>
       </Card>
 
-      {/* Withdraw Dialog */}
       <Dialog open={withdrawDialog} onOpenChange={setWithdrawDialog}>
         <DialogContent className="bg-card border-border">
           <DialogHeader>
@@ -212,7 +227,7 @@ export default function AffiliateDashboard() {
           <div className="space-y-4 pt-2">
             <p className="text-sm text-muted-foreground">
               Saldo disponível: <strong className="text-foreground">
-                {affiliate.balance.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                {balance.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
               </strong>
             </p>
             <div className="space-y-2">
@@ -223,7 +238,7 @@ export default function AffiliateDashboard() {
                   id="withdraw-amount"
                   type="number"
                   min="0"
-                  max={affiliate.balance}
+                  max={balance}
                   step="0.01"
                   placeholder="0,00"
                   value={withdrawAmount}
@@ -234,13 +249,10 @@ export default function AffiliateDashboard() {
             </div>
             <Button
               className="w-full"
-              disabled={!withdrawAmount || Number(withdrawAmount) <= 0 || Number(withdrawAmount) > affiliate.balance}
-              onClick={() => {
-                setWithdrawDialog(false);
-                setWithdrawAmount("");
-              }}
+              disabled={!withdrawAmount || Number(withdrawAmount) <= 0 || Number(withdrawAmount) > balance || createWithdrawal.isPending}
+              onClick={handleWithdraw}
             >
-              Solicitar
+              {createWithdrawal.isPending ? "Enviando..." : "Solicitar"}
             </Button>
           </div>
         </DialogContent>
