@@ -44,20 +44,11 @@ const AuthPage = () => {
         return;
       }
 
-      const userId = data.user.id;
-
-      // Check if admin
-      const { data: adminData } = await supabase
-        .from("admins")
-        .select("id")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      if (adminData) {
-        navigate("/admin");
-      } else {
-        navigate("/painel");
+      if (!data.user) {
+        throw new Error("Sessão inválida");
       }
+
+      navigate("/admin");
     } catch {
       toast({
         title: "Erro",
