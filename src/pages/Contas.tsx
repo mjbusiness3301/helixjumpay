@@ -89,8 +89,9 @@ export default function Contas() {
 
   const { data: admins = [], isLoading: loadingAdmins } = useAdmins();
   const { data: affiliates = [], isLoading: loadingAffiliates } = useAffiliates();
+  const { data: leads = [], isLoading: loadingLeads } = useLeads();
 
-  const isLoading = loadingAdmins || loadingAffiliates;
+  const isLoading = loadingAdmins || loadingAffiliates || loadingLeads;
 
   // Merge admins + affiliates into unified account list
   const allAccounts: AccountRow[] = [
