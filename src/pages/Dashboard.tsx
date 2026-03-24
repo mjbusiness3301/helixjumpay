@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,20 +31,9 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { DateRange } from "react-day-picker";
 import { useAffiliates } from "@/hooks/useAffiliates";
+import { useHourlyChartData } from "@/hooks/useActivityLogs";
 
 type FilterType = "today" | "yesterday" | "7days" | "custom";
-
-const generateHourlyData = () => {
-  const hours = [];
-  for (let i = 0; i < 24; i++) {
-    hours.push({
-      hour: `${String(i).padStart(2, "0")}:00`,
-      cadastros: Math.floor(Math.random() * 18 + 2),
-      depositos: Math.floor(Math.random() * 12 + 1),
-    });
-  }
-  return hours;
-};
 
 const chartConfig = {
   cadastros: {
@@ -63,7 +52,7 @@ const Dashboard = () => {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const { data: affiliates = [], isLoading } = useAffiliates();
 
-  const hourlyData = useMemo(() => generateHourlyData(), [filter]);
+  const { hourlyData } = useHourlyChartData();
 
   // Compute real stats from affiliates
   const totalCadastros = affiliates.reduce((sum, a) => sum + a.total_registrations, 0);

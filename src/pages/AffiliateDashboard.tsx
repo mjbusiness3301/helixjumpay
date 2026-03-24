@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,15 +32,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useCreateWithdrawal } from "@/hooks/useWithdrawals";
 import { useToast } from "@/hooks/use-toast";
+import { useHourlyChartData } from "@/hooks/useActivityLogs";
 import type { Affiliate } from "@/types/database";
-
-function generateHourlyData() {
-  return Array.from({ length: 24 }, (_, i) => ({
-    hour: `${String(i).padStart(2, "0")}:00`,
-    cadastros: Math.floor(Math.random() * 15) + 1,
-    depositos: Math.floor(Math.random() * 10),
-  }));
-}
 
 const chartConfig = {
   cadastros: { label: "Cadastros", color: "hsl(var(--primary))" },
@@ -53,7 +46,6 @@ export default function AffiliateDashboard() {
   const [withdrawDialog, setWithdrawDialog] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [copied, setCopied] = useState(false);
-  const hourlyData = useMemo(() => generateHourlyData(), []);
   const createWithdrawal = useCreateWithdrawal();
 
   const { data: affiliate, isLoading } = useQuery({
@@ -69,6 +61,8 @@ export default function AffiliateDashboard() {
     },
     enabled: !!user?.id,
   });
+
+  const { hourlyData } = useHourlyChartData(affiliate?.id);
 
   if (isLoading || !affiliate) {
     return (
