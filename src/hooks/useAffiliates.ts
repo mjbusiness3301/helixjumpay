@@ -19,16 +19,31 @@ export function useAffiliates() {
 export function useCreateAffiliate() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (affiliate: { name: string; email: string; commission: number }) => {
+    mutationFn: async (affiliate: { name: string; email: string; password: string; commission: number }) => {
+      // 1. Create auth user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: affiliate.email,
+        password: affiliate.password,
+        options: {
+          data: { name: affiliate.name },
+        },
+      });
+
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("Falha ao criar conta do afiliado");
+
+      // 2. Insert into affiliates table with user_id
       const { data, error } = await supabase
         .from("affiliates")
         .insert({
+          user_id: authData.user.id,
           name: affiliate.name,
           email: affiliate.email,
           commission: affiliate.commission,
         })
         .select()
         .single();
+
       if (error) throw error;
       return data as Affiliate;
     },

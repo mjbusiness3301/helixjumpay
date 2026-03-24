@@ -290,7 +290,11 @@ export default function Afiliados() {
                   <Label htmlFor="af-email">E-mail</Label>
                   <Input id="af-email" type="email" placeholder="email@exemplo.com" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
                 </div>
-                <Button className="w-full" onClick={() => setStep(2)} disabled={!form.name.trim() || !form.email.trim()}>
+                <div className="space-y-2">
+                  <Label htmlFor="af-password">Senha</Label>
+                  <Input id="af-password" type="password" placeholder="Mínimo 6 caracteres" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} />
+                </div>
+                <Button className="w-full" onClick={() => setStep(2)} disabled={!form.name.trim() || !form.email.trim() || form.password.length < 6}>
                   Próximo
                 </Button>
               </div>
