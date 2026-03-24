@@ -1,34 +1,22 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Shield, Users, Gamepad2 } from "lucide-react";
+import { Search, Shield, Users, Gamepad2, Loader2 } from "lucide-react";
+import { useAdmins } from "@/hooks/useAdmins";
+import { useAffiliates } from "@/hooks/useAffiliates";
 
 type AccountRole = "admin" | "affiliate" | "player";
 
-interface Account {
+interface AccountRow {
   id: string;
   name: string;
   email: string;
   role: AccountRole;
-  status: "active" | "frozen";
+  status: string;
   createdAt: string;
 }
-
-const MOCK_ACCOUNTS: Account[] = [
-  { id: "a1", name: "Admin Principal", email: "admin@helixpay.com", role: "admin", status: "active", createdAt: "2025-01-10" },
-  { id: "a2", name: "Suporte HelixPay", email: "suporte@helixpay.com", role: "admin", status: "active", createdAt: "2025-02-15" },
-  { id: "f1", name: "Carlos Mendes", email: "carlos@email.com", role: "affiliate", status: "active", createdAt: "2025-06-20" },
-  { id: "f2", name: "Ana Souza", email: "ana@email.com", role: "affiliate", status: "active", createdAt: "2025-07-05" },
-  { id: "f3", name: "Pedro Lima", email: "pedro@email.com", role: "affiliate", status: "frozen", createdAt: "2025-08-12" },
-  { id: "p1", name: "Lucas Ferreira", email: "lucas.f@gmail.com", role: "player", status: "active", createdAt: "2026-01-14" },
-  { id: "p2", name: "Mariana Costa", email: "mari.costa@gmail.com", role: "player", status: "active", createdAt: "2026-01-22" },
-  { id: "p3", name: "Rafael Oliveira", email: "rafa.oli@hotmail.com", role: "player", status: "active", createdAt: "2026-02-03" },
-  { id: "p4", name: "Juliana Santos", email: "ju.santos@yahoo.com", role: "player", status: "frozen", createdAt: "2026-02-18" },
-  { id: "p5", name: "Thiago Almeida", email: "thiago.alm@gmail.com", role: "player", status: "active", createdAt: "2026-03-01" },
-  { id: "p6", name: "Beatriz Rocha", email: "bia.rocha@gmail.com", role: "player", status: "active", createdAt: "2026-03-10" },
-];
 
 const roleConfig: Record<AccountRole, { label: string; icon: typeof Shield; color: string }> = {
   admin: { label: "Administrador", icon: Shield, color: "text-amber-500" },
@@ -36,7 +24,7 @@ const roleConfig: Record<AccountRole, { label: string; icon: typeof Shield; colo
   player: { label: "Jogador", icon: Gamepad2, color: "text-emerald-500" },
 };
 
-function AccountRow({ account }: { account: Account }) {
+function AccountRowComponent({ account }: { account: AccountRow }) {
   const cfg = roleConfig[account.role];
   const RoleIcon = cfg.icon;
 
@@ -64,7 +52,7 @@ function AccountRow({ account }: { account: Account }) {
   );
 }
 
-function AccountTable({ accounts }: { accounts: Account[] }) {
+function AccountTable({ accounts }: { accounts: AccountRow[] }) {
   if (accounts.length === 0) {
     return (
       <div className="px-5 py-12 text-center text-muted-foreground">
@@ -86,7 +74,7 @@ function AccountTable({ accounts }: { accounts: Account[] }) {
         </thead>
         <tbody>
           {accounts.map((a) => (
-            <AccountRow key={a.id} account={a} />
+            <AccountRowComponent key={a.id} account={a} />
           ))}
         </tbody>
       </table>
@@ -98,7 +86,32 @@ export default function Contas() {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState("all");
 
-  const filtered = MOCK_ACCOUNTS.filter((a) => {
+  const { data: admins = [], isLoading: loadingAdmins } = useAdmins();
+  const { data: affiliates = [], isLoading: loadingAffiliates } = useAffiliates();
+
+  const isLoading = loadingAdmins || loadingAffiliates;
+
+  // Merge admins + affiliates into unified account list
+  const allAccounts: AccountRow[] = [
+    ...admins.map((a) => ({
+      id: a.id,
+      name: a.name,
+      email: a.email,
+      role: "admin" as AccountRole,
+      status: a.status,
+      createdAt: a.created_at,
+    })),
+    ...affiliates.map((a) => ({
+      id: a.id,
+      name: a.name,
+      email: a.email,
+      role: "affiliate" as AccountRole,
+      status: a.status,
+      createdAt: a.created_at,
+    })),
+  ];
+
+  const filtered = allAccounts.filter((a) => {
     const matchesTab = tab === "all" || a.role === tab;
     const matchesSearch =
       a.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -107,11 +120,18 @@ export default function Contas() {
   });
 
   const counts = {
-    all: MOCK_ACCOUNTS.length,
-    admin: MOCK_ACCOUNTS.filter((a) => a.role === "admin").length,
-    affiliate: MOCK_ACCOUNTS.filter((a) => a.role === "affiliate").length,
-    player: MOCK_ACCOUNTS.filter((a) => a.role === "player").length,
+    all: allAccounts.length,
+    admin: allAccounts.filter((a) => a.role === "admin").length,
+    affiliate: allAccounts.filter((a) => a.role === "affiliate").length,
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6 animate-reveal-up">
@@ -139,7 +159,6 @@ export default function Contas() {
           <TabsTrigger value="all">Todas ({counts.all})</TabsTrigger>
           <TabsTrigger value="admin">Administradores ({counts.admin})</TabsTrigger>
           <TabsTrigger value="affiliate">Afiliados ({counts.affiliate})</TabsTrigger>
-          <TabsTrigger value="player">Jogadores ({counts.player})</TabsTrigger>
         </TabsList>
 
         <TabsContent value={tab} className="mt-4">
