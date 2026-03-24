@@ -26,55 +26,72 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const determineRole = async (userId: string) => {
-    // Check if user is admin
-    const { data: adminData } = await supabase
-      .from("admins")
-      .select("id")
-      .eq("user_id", userId)
-      .maybeSingle();
+    try {
+      const { data: adminData } = await supabase
+        .from("admins")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
 
-    if (adminData) {
-      setUserRole("admin");
-      return;
+      if (adminData) return "admin" as const;
+
+      const { data: affiliateData } = await supabase
+        .from("affiliates")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (affiliateData) return "affiliate" as const;
+    } catch {
+      // Ignore errors
     }
-
-    // Check if user is affiliate
-    const { data: affiliateData } = await supabase
-      .from("affiliates")
-      .select("id")
-      .eq("user_id", userId)
-      .maybeSingle();
-
-    if (affiliateData) {
-      setUserRole("affiliate");
-      return;
-    }
-
-    setUserRole(null);
+    return null;
   };
 
   useEffect(() => {
+    let mounted = true;
+
+    // Set up listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        if (session?.user) {
-          await determineRole(session.user.id);
+      async (_event, newSession) => {
+        if (!mounted) return;
+        setSession(newSession);
+
+        if (newSession?.user) {
+          // Use setTimeout to avoid Supabase client deadlock
+          setTimeout(async () => {
+            if (!mounted) return;
+            const role = await determineRole(newSession.user.id);
+            if (mounted) {
+              setUserRole(role);
+              setLoading(false);
+            }
+          }, 0);
         } else {
           setUserRole(null);
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      if (session?.user) {
-        await determineRole(session.user.id);
+    // Then get initial session
+    supabase.auth.getSession().then(async ({ data: { session: initialSession } }) => {
+      if (!mounted) return;
+      setSession(initialSession);
+
+      if (initialSession?.user) {
+        const role = await determineRole(initialSession.user.id);
+        if (mounted) {
+          setUserRole(role);
+        }
       }
-      setLoading(false);
+      if (mounted) setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {
