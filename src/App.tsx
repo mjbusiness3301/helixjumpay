@@ -11,6 +11,7 @@ import Index from "./pages/Index.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import Afiliados from "./pages/Afiliados.tsx";
 import AffiliateDashboard from "./pages/AffiliateDashboard.tsx";
+import AffiliateSettings from "./pages/AffiliateSettings.tsx";
 import Saques from "./pages/Saques.tsx";
 import Contas from "./pages/Contas.tsx";
 import NotFound from "./pages/NotFound.tsx";
