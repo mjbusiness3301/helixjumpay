@@ -82,6 +82,16 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/painel/configuracoes"
+              element={
+                <ProtectedRoute requiredRole="affiliate">
+                  <AffiliateLayout>
+                    <AffiliateSettings />
+                  </AffiliateLayout>
+                </ProtectedRoute>
+              }
+            />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
