@@ -9,6 +9,7 @@ import logo from "@/assets/logo.png";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCompliance } from "@/contexts/ComplianceContext";
 
 import {
   Sidebar,
@@ -25,9 +26,14 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 
-const menuItems = [
+const affiliateMenuItems = [
   { title: "Dashboard", url: "/painel", icon: LayoutDashboard },
   { title: "Configurações", url: "/painel/configuracoes", icon: Settings },
+];
+
+const complianceMenuItems = [
+  { title: "Dashboard", url: "/admin/compliance", icon: LayoutDashboard },
+  { title: "Configurações", url: "/admin/compliance/configuracoes", icon: Settings },
 ];
 
 export function AffiliateSidebar() {
@@ -36,8 +42,16 @@ export function AffiliateSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { isComplianceMode, setComplianceAffiliate } = useCompliance();
+
+  const menuItems = isComplianceMode ? complianceMenuItems : affiliateMenuItems;
 
   const handleLogout = async () => {
+    if (isComplianceMode) {
+      setComplianceAffiliate(null);
+      navigate("/admin/afiliados");
+      return;
+    }
     await signOut();
     navigate("/");
   };
@@ -80,7 +94,7 @@ export function AffiliateSidebar() {
         </Button>
         <Button variant="ghost" size="sm" onClick={handleLogout} className="w-full justify-start text-muted-foreground hover:text-foreground">
           <LogOut className="h-4 w-4" />
-          {!collapsed && <span className="ml-2">Sair</span>}
+          {!collapsed && <span className="ml-2">{isComplianceMode ? "Voltar ao Admin" : "Sair"}</span>}
         </Button>
       </SidebarFooter>
     </Sidebar>
