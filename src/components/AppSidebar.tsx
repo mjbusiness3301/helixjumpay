@@ -34,6 +34,7 @@ const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Afiliados", url: "/admin/afiliados", icon: Users },
   { title: "Saques", url: "/admin/saques", icon: ArrowDownToLine },
+  { title: "Histórico", url: "/admin/historico", icon: History },
   { title: "Contas", url: "/admin/contas", icon: Wallet },
   { title: "Configurações", url: "/admin/configuracoes", icon: Settings },
 ];

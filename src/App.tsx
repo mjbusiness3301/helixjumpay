@@ -71,6 +71,16 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin/historico"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <DashboardLayout>
+                    <Historico />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
 
             {/* Affiliate routes */}
             <Route
