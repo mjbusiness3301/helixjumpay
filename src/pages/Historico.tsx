@@ -38,7 +38,7 @@ export default function Historico() {
   const [dateTo, setDateTo] = useState<Date | undefined>();
   const [page, setPage] = useState(1);
 
-  const { data: deposits = [], isLoading } = useQuery({
+  const { data: deposits = [], isLoading: loadingDeposits } = useQuery({
     queryKey: ["all-deposits"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -49,6 +49,49 @@ export default function Historico() {
       return data;
     },
   });
+
+  const { data: leads = [], isLoading: loadingLeads } = useQuery({
+    queryKey: ["leads-with-affiliate"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("leads")
+        .select("id, affiliate_id");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: affiliates = [], isLoading: loadingAffiliates } = useQuery({
+    queryKey: ["affiliates-names"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("affiliates")
+        .select("id, name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const isLoading = loadingDeposits || loadingLeads || loadingAffiliates;
+
+  const affiliateMap = useMemo(() => {
+    const map = new Map<string, string>();
+    affiliates.forEach((a) => map.set(a.id, a.name));
+    return map;
+  }, [affiliates]);
+
+  const leadAffiliateMap = useMemo(() => {
+    const map = new Map<string, string | null>();
+    leads.forEach((l) => map.set(l.id, l.affiliate_id));
+    return map;
+  }, [leads]);
+
+  const getAffiliateName = (leadId: string | null) => {
+    if (!leadId) return null;
+    const affiliateId = leadAffiliateMap.get(leadId);
+    if (!affiliateId) return null;
+    return affiliateMap.get(affiliateId) ?? null;
+  };
 
   const filtered = useMemo(() => {
     return deposits.filter((dep) => {
@@ -167,6 +210,7 @@ export default function Historico() {
                 <TableRow>
                   <TableHead>Nome</TableHead>
                   <TableHead>Telefone</TableHead>
+                  <TableHead>Afiliado</TableHead>
                   <TableHead>Valor</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Criado em</TableHead>
@@ -180,6 +224,16 @@ export default function Historico() {
                     <TableRow key={dep.id}>
                       <TableCell className="font-medium">{dep.lead_name ?? "—"}</TableCell>
                       <TableCell>{dep.lead_phone ?? "—"}</TableCell>
+                      <TableCell>
+                        {(() => {
+                          const name = getAffiliateName(dep.lead_id);
+                          return name ? (
+                            <Badge variant="outline">{name}</Badge>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          );
+                        })()}
+                      </TableCell>
                       <TableCell>{formatCurrency(Number(dep.amount_cents))}</TableCell>
                       <TableCell>
                         <Badge variant={status.variant}>{status.label}</Badge>

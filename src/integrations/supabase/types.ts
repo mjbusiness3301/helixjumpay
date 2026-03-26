@@ -258,6 +258,7 @@ export type Database = {
       }
       leads: {
         Row: {
+          affiliate_id: string | null
           created_at: string
           id: string
           ip_address: string | null
@@ -270,6 +271,7 @@ export type Database = {
           utm_source: string | null
         }
         Insert: {
+          affiliate_id?: string | null
           created_at?: string
           id?: string
           ip_address?: string | null
@@ -282,6 +284,7 @@ export type Database = {
           utm_source?: string | null
         }
         Update: {
+          affiliate_id?: string | null
           created_at?: string
           id?: string
           ip_address?: string | null
@@ -293,7 +296,15 @@ export type Database = {
           utm_medium?: string | null
           utm_source?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leads_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       withdrawals: {
         Row: {
