@@ -75,14 +75,14 @@ export default function Historico() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6 animate-reveal-up">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Histórico de Depósitos</h1>
         <p className="text-muted-foreground">Todos os depósitos realizados na plataforma</p>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="flex flex-wrap items-end gap-4">
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-muted-foreground">Status</label>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
