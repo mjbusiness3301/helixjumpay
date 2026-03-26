@@ -27,13 +27,16 @@ import {
 } from "@/components/ui/table";
 import { format, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { History, Loader2, CalendarIcon, X } from "lucide-react";
+import { History, Loader2, CalendarIcon, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const PAGE_SIZE = 20;
 
 export default function Historico() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
+  const [page, setPage] = useState(1);
 
   const { data: deposits = [], isLoading } = useQuery({
     queryKey: ["all-deposits"],
@@ -57,10 +60,19 @@ export default function Historico() {
     });
   }, [deposits, statusFilter, dateFrom, dateTo]);
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  // Reset page when filters change
+  const handleStatusChange = (v: string) => { setStatusFilter(v); setPage(1); };
+  const handleDateFrom = (d: Date | undefined) => { setDateFrom(d); setPage(1); };
+  const handleDateTo = (d: Date | undefined) => { setDateTo(d); setPage(1); };
+
   const clearFilters = () => {
     setStatusFilter("all");
     setDateFrom(undefined);
     setDateTo(undefined);
+    setPage(1);
   };
 
   const hasFilters = statusFilter !== "all" || dateFrom || dateTo;
@@ -85,7 +97,7 @@ export default function Historico() {
       <div className="flex flex-wrap items-end gap-4">
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-muted-foreground">Status</label>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select value={statusFilter} onValueChange={handleStatusChange}>
             <SelectTrigger className="w-[160px]">
               <SelectValue />
             </SelectTrigger>
@@ -108,7 +120,7 @@ export default function Historico() {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-              <Calendar mode="single" selected={dateFrom} onSelect={setDateFrom} initialFocus className="p-3 pointer-events-auto" locale={ptBR} />
+              <Calendar mode="single" selected={dateFrom} onSelect={handleDateFrom} initialFocus className="p-3 pointer-events-auto" locale={ptBR} />
             </PopoverContent>
           </Popover>
         </div>
@@ -123,7 +135,7 @@ export default function Historico() {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-              <Calendar mode="single" selected={dateTo} onSelect={setDateTo} initialFocus className="p-3 pointer-events-auto" locale={ptBR} />
+              <Calendar mode="single" selected={dateTo} onSelect={handleDateTo} initialFocus className="p-3 pointer-events-auto" locale={ptBR} />
             </PopoverContent>
           </Popover>
         </div>
@@ -162,7 +174,7 @@ export default function Historico() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((dep) => {
+                {paged.map((dep) => {
                   const status = statusConfig[dep.status] ?? { label: dep.status, variant: "outline" as const };
                   return (
                     <TableRow key={dep.id}>
@@ -185,6 +197,24 @@ export default function Historico() {
                 })}
               </TableBody>
             </Table>
+          )}
+
+          {/* Pagination */}
+          {filtered.length > PAGE_SIZE && (
+            <div className="flex items-center justify-between pt-4 border-t mt-4">
+              <span className="text-sm text-muted-foreground">
+                Mostrando {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} de {filtered.length}
+              </span>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-sm font-medium">{page} / {totalPages}</span>
+                <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>
