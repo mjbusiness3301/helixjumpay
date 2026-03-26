@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -9,22 +10,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Search, Users } from "lucide-react";
+import { Loader2, Search, Users, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCompliance } from "@/contexts/ComplianceContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import type { Affiliate } from "@/types/database";
+
+const PAGE_SIZE = 10;
 
 interface LeadWithDeposits {
   id: string;
   name: string;
-  phone: string;
-  created_at: string;
-  total_deposits: number;
   total_deposited_cents: number;
 }
 
@@ -32,6 +29,7 @@ export default function AffiliateIndicados() {
   const { user } = useAuth();
   const { complianceAffiliate, isComplianceMode } = useCompliance();
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
 
   const { data: fetchedAffiliate } = useQuery({
     queryKey: ["my-affiliate", user?.id],
@@ -52,16 +50,14 @@ export default function AffiliateIndicados() {
   const { data: leads, isLoading } = useQuery({
     queryKey: ["affiliate-leads", affiliate?.id],
     queryFn: async () => {
-      // Get leads for this affiliate
       const { data: leadsData, error: leadsError } = await supabase
         .from("leads")
-        .select("id, name, phone, created_at")
+        .select("id, name")
         .eq("affiliate_id", affiliate!.id)
         .order("created_at", { ascending: false });
 
       if (leadsError) throw leadsError;
 
-      // Get deposit counts for each lead
       const leadIds = leadsData.map((l) => l.id);
       if (leadIds.length === 0) return [] as LeadWithDeposits[];
 
@@ -72,32 +68,34 @@ export default function AffiliateIndicados() {
 
       if (depositsError) throw depositsError;
 
-      // Aggregate deposits per lead
-      const depositMap = new Map<string, { count: number; total: number }>();
+      const depositMap = new Map<string, number>();
       for (const d of depositsData || []) {
-        if (!d.lead_id) continue;
-        const entry = depositMap.get(d.lead_id) || { count: 0, total: 0 };
-        if (d.status === "confirmed") {
-          entry.count++;
-          entry.total += d.amount_cents;
-        }
-        depositMap.set(d.lead_id, entry);
+        if (!d.lead_id || d.status !== "confirmed") continue;
+        depositMap.set(d.lead_id, (depositMap.get(d.lead_id) || 0) + d.amount_cents);
       }
 
       return leadsData.map((lead) => ({
-        ...lead,
-        total_deposits: depositMap.get(lead.id)?.count || 0,
-        total_deposited_cents: depositMap.get(lead.id)?.total || 0,
+        id: lead.id,
+        name: lead.name,
+        total_deposited_cents: depositMap.get(lead.id) || 0,
       })) as LeadWithDeposits[];
     },
     enabled: !!affiliate?.id,
   });
 
-  const filtered = (leads || []).filter(
-    (l) =>
-      l.name.toLowerCase().includes(search.toLowerCase()) ||
-      l.phone.includes(search)
+  const filtered = (leads || []).filter((l) =>
+    l.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  // Reset page when search changes
+  const handleSearch = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
 
   if (isLoading || !affiliate) {
     return (
@@ -136,9 +134,9 @@ export default function AffiliateIndicados() {
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar por nome ou telefone..."
+                placeholder="Buscar por nome..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => handleSearch(e.target.value)}
                 className="pl-9"
               />
             </div>
@@ -150,41 +148,62 @@ export default function AffiliateIndicados() {
               <p className="text-sm">Nenhum indicado encontrado</p>
             </div>
           ) : (
-            <div className="rounded-lg border border-border overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/30">
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Telefone</TableHead>
-                    <TableHead>Data de Cadastro</TableHead>
-                    <TableHead className="text-center">Depósitos</TableHead>
-                    <TableHead className="text-right">Valor Depositado</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filtered.map((lead) => (
-                    <TableRow key={lead.id}>
-                      <TableCell className="font-medium">{lead.name}</TableCell>
-                      <TableCell className="text-muted-foreground">{lead.phone}</TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {format(new Date(lead.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant={lead.total_deposits > 0 ? "default" : "secondary"}>
-                          {lead.total_deposits}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right font-medium">
-                        {(lead.total_deposited_cents / 100).toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                        })}
-                      </TableCell>
+            <>
+              <div className="rounded-lg border border-border overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/30">
+                      <TableHead>Nome</TableHead>
+                      <TableHead className="text-right">Valor Depositado</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {paginated.map((lead) => (
+                      <TableRow key={lead.id}>
+                        <TableCell className="font-medium">{lead.name}</TableCell>
+                        <TableCell className="text-right font-medium">
+                          {(lead.total_deposited_cents / 100).toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                          })}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4">
+                  <p className="text-xs text-muted-foreground">
+                    {filtered.length} resultado{filtered.length !== 1 ? "s" : ""}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      disabled={currentPage <= 1}
+                      onClick={() => setPage((p) => p - 1)}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      {currentPage} / {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      disabled={currentPage >= totalPages}
+                      onClick={() => setPage((p) => p + 1)}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
