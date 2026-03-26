@@ -174,7 +174,7 @@ export default function Historico() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((dep) => {
+                {paged.map((dep) => {
                   const status = statusConfig[dep.status] ?? { label: dep.status, variant: "outline" as const };
                   return (
                     <TableRow key={dep.id}>
@@ -197,6 +197,24 @@ export default function Historico() {
                 })}
               </TableBody>
             </Table>
+          )}
+
+          {/* Pagination */}
+          {filtered.length > PAGE_SIZE && (
+            <div className="flex items-center justify-between pt-4 border-t mt-4">
+              <span className="text-sm text-muted-foreground">
+                Mostrando {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} de {filtered.length}
+              </span>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-sm font-medium">{page} / {totalPages}</span>
+                <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>
