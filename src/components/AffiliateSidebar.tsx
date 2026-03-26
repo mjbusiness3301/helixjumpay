@@ -2,6 +2,7 @@ import {
   LayoutDashboard,
   Settings,
   History,
+  Crown,
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
@@ -30,12 +31,14 @@ import { Button } from "@/components/ui/button";
 const affiliateMenuItems = [
   { title: "Dashboard", url: "/painel", icon: LayoutDashboard },
   { title: "Histórico", url: "/painel/historico", icon: History },
+  { title: "Plano", url: "/painel/plano", icon: Crown },
   { title: "Configurações", url: "/painel/configuracoes", icon: Settings },
 ];
 
 const complianceMenuItems = [
   { title: "Dashboard", url: "/admin/compliance", icon: LayoutDashboard },
   { title: "Histórico", url: "/admin/compliance/historico", icon: History },
+  { title: "Plano", url: "/admin/compliance/plano", icon: Crown },
   { title: "Configurações", url: "/admin/compliance/configuracoes", icon: Settings },
 ];
 
