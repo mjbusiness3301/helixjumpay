@@ -340,7 +340,7 @@ export default function Afiliados() {
               <Card
                 key={affiliate.id}
                 className="bg-card border-border/60 hover:border-primary/30 cursor-pointer transition-all hover:shadow-lg hover:shadow-primary/5 group"
-                onClick={() => setSelectedAffiliate(affiliate)}
+                onClick={() => { setComplianceAffiliate(affiliate); navigate("/admin/compliance"); }}
               >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between mb-4">
