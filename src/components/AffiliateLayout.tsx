@@ -6,8 +6,10 @@ export function AffiliateLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex flex-col w-full bg-background">
-        <ComplianceBanner />
-        <div className="flex flex-1">
+        <div className="w-full z-50 sticky top-0">
+          <ComplianceBanner />
+        </div>
+        <div className="flex flex-1 w-full">
           <AffiliateSidebar />
           <main className="flex-1 min-w-0">{children}</main>
         </div>
