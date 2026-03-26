@@ -128,6 +128,16 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/admin/compliance/indicados"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AffiliateLayout>
+                      <AffiliateIndicados />
+                    </AffiliateLayout>
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Affiliate routes */}
               <Route
@@ -166,6 +176,16 @@ const App = () => (
                   <ProtectedRoute requiredRole="affiliate">
                     <AffiliateLayout>
                       <AffiliatePlano />
+                    </AffiliateLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/painel/indicados"
+                element={
+                  <ProtectedRoute requiredRole="affiliate">
+                    <AffiliateLayout>
+                      <AffiliateIndicados />
                     </AffiliateLayout>
                   </ProtectedRoute>
                 }
