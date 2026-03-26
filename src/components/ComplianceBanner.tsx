@@ -1,4 +1,4 @@
-import { Shield, ArrowLeft } from "lucide-react";
+import { Shield, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCompliance } from "@/contexts/ComplianceContext";
 import { useNavigate } from "react-router-dom";
@@ -15,24 +15,19 @@ export function ComplianceBanner() {
   };
 
   return (
-    <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 py-2.5 flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <Shield className="h-4 w-4 text-amber-500" />
-        <span className="text-sm font-medium text-amber-500">
-          Modo Compliance
-        </span>
-        <span className="text-sm text-amber-400/80">
-          — Visualizando conta de <strong>{complianceAffiliate.name}</strong>
-        </span>
+    <div className="fixed top-4 right-4 z-[100] bg-card border border-amber-500/40 rounded-lg shadow-lg shadow-amber-500/10 px-4 py-3 flex items-center gap-3 max-w-xs">
+      <Shield className="h-4 w-4 text-amber-500 shrink-0" />
+      <div className="flex-1 min-w-0">
+        <p className="text-[11px] font-medium text-amber-500 uppercase tracking-wider">Compliance</p>
+        <p className="text-xs text-muted-foreground truncate">{complianceAffiliate.name}</p>
       </div>
       <Button
         variant="ghost"
-        size="sm"
+        size="icon"
         onClick={handleExit}
-        className="text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 gap-1.5"
+        className="h-7 w-7 shrink-0 text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="h-3.5 w-3.5" />
-        Voltar ao Admin
+        <X className="h-3.5 w-3.5" />
       </Button>
     </div>
   );
