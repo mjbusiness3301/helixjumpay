@@ -42,8 +42,16 @@ export function AffiliateSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { isComplianceMode, setComplianceAffiliate } = useCompliance();
+
+  const menuItems = isComplianceMode ? complianceMenuItems : affiliateMenuItems;
 
   const handleLogout = async () => {
+    if (isComplianceMode) {
+      setComplianceAffiliate(null);
+      navigate("/admin/afiliados");
+      return;
+    }
     await signOut();
     navigate("/");
   };
