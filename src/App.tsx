@@ -16,6 +16,7 @@ import AffiliateSettings from "./pages/AffiliateSettings.tsx";
 import Saques from "./pages/Saques.tsx";
 import Contas from "./pages/Contas.tsx";
 import Historico from "./pages/Historico.tsx";
+import AffiliateHistorico from "./pages/AffiliateHistorico.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -105,6 +106,16 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/admin/compliance/historico"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AffiliateLayout>
+                      <AffiliateHistorico />
+                    </AffiliateLayout>
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Affiliate routes */}
               <Route
@@ -123,6 +134,16 @@ const App = () => (
                   <ProtectedRoute requiredRole="affiliate">
                     <AffiliateLayout>
                       <AffiliateSettings />
+                    </AffiliateLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/painel/historico"
+                element={
+                  <ProtectedRoute requiredRole="affiliate">
+                    <AffiliateLayout>
+                      <AffiliateHistorico />
                     </AffiliateLayout>
                   </ProtectedRoute>
                 }
