@@ -97,7 +97,7 @@ export default function Historico() {
       <div className="flex flex-wrap items-end gap-4">
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-muted-foreground">Status</label>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select value={statusFilter} onValueChange={handleStatusChange}>
             <SelectTrigger className="w-[160px]">
               <SelectValue />
             </SelectTrigger>
