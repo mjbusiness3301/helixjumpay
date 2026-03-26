@@ -9,6 +9,7 @@ import logo from "@/assets/logo.png";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCompliance } from "@/contexts/ComplianceContext";
 
 import {
   Sidebar,
@@ -25,9 +26,14 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 
-const menuItems = [
+const affiliateMenuItems = [
   { title: "Dashboard", url: "/painel", icon: LayoutDashboard },
   { title: "Configurações", url: "/painel/configuracoes", icon: Settings },
+];
+
+const complianceMenuItems = [
+  { title: "Dashboard", url: "/admin/compliance", icon: LayoutDashboard },
+  { title: "Configurações", url: "/admin/compliance/configuracoes", icon: Settings },
 ];
 
 export function AffiliateSidebar() {
