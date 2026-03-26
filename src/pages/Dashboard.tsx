@@ -49,7 +49,11 @@ const Dashboard = () => {
   const [filter, setFilter] = useState<FilterType>("today");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const { data: stats, isLoading } = useDashboardStats();
+  const { data: stats, isLoading } = useDashboardStats({
+    filter,
+    from: dateRange?.from,
+    to: dateRange?.to,
+  });
   const { hourlyData } = useHourlyChartData();
 
   const totalCadastros = stats?.totalCadastros ?? 0;
