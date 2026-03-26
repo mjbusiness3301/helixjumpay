@@ -7,6 +7,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -20,6 +26,7 @@ import {
   Copy,
   Check,
   Loader2,
+  CalendarDays,
 } from "lucide-react";
 import {
   ChartContainer,
@@ -27,6 +34,9 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from "recharts";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import type { DateRange } from "react-day-picker";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCompliance } from "@/contexts/ComplianceContext";
 import { useQuery } from "@tanstack/react-query";
@@ -34,12 +44,20 @@ import { supabase } from "@/lib/supabase";
 import { useCreateWithdrawal } from "@/hooks/useWithdrawals";
 import { useToast } from "@/hooks/use-toast";
 import { useHourlyChartData } from "@/hooks/useActivityLogs";
-import { AffiliateDepositHistory } from "@/components/AffiliateDepositHistory";
 import type { Affiliate } from "@/types/database";
+
+type FilterType = "today" | "yesterday" | "7days" | "custom";
 
 const chartConfig = {
   cadastros: { label: "Cadastros", color: "hsl(var(--primary))" },
   depositos: { label: "Depósitos", color: "hsl(142 71% 45%)" },
+};
+
+const filterLabels: Record<FilterType, string> = {
+  today: "Hoje",
+  yesterday: "Ontem",
+  "7days": "Últimos 7 dias",
+  custom: "Personalizado",
 };
 
 export default function AffiliateDashboard() {
@@ -49,6 +67,9 @@ export default function AffiliateDashboard() {
   const [withdrawDialog, setWithdrawDialog] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [copied, setCopied] = useState(false);
+  const [filter, setFilter] = useState<FilterType>("today");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const createWithdrawal = useCreateWithdrawal();
 
   const { data: fetchedAffiliate, isLoading } = useQuery({
@@ -103,6 +124,23 @@ export default function AffiliateDashboard() {
     }
   };
 
+  const handleFilterClick = (f: FilterType) => {
+    if (f === "custom") {
+      setCalendarOpen(true);
+    } else {
+      setFilter(f);
+      setCalendarOpen(false);
+    }
+  };
+
+  const handleDateSelect = (range: DateRange | undefined) => {
+    setDateRange(range);
+    if (range?.from && range?.to) {
+      setFilter("custom");
+      setCalendarOpen(false);
+    }
+  };
+
   const stats = [
     {
       label: "Cadastros",
@@ -147,6 +185,44 @@ export default function AffiliateDashboard() {
             Solicitar Saque
           </Button>
         )}
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-2">
+        {(["today", "yesterday", "7days"] as FilterType[]).map((f) => (
+          <Button
+            key={f}
+            variant={filter === f ? "default" : "outline"}
+            size="sm"
+            onClick={() => handleFilterClick(f)}
+          >
+            {filterLabels[f]}
+          </Button>
+        ))}
+        <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant={filter === "custom" ? "default" : "outline"}
+              size="sm"
+              onClick={() => handleFilterClick("custom")}
+            >
+              <CalendarDays className="mr-2 h-4 w-4" />
+              {filter === "custom" && dateRange?.from && dateRange?.to
+                ? `${format(dateRange.from, "dd/MM", { locale: ptBR })} - ${format(dateRange.to, "dd/MM", { locale: ptBR })}`
+                : "Personalizado"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0 bg-card border-border" align="start">
+            <Calendar
+              mode="range"
+              selected={dateRange}
+              onSelect={handleDateSelect}
+              locale={ptBR}
+              numberOfMonths={1}
+              className="pointer-events-auto"
+            />
+          </PopoverContent>
+        </Popover>
       </div>
 
       <Card className="bg-card border-border/60">
@@ -219,8 +295,6 @@ export default function AffiliateDashboard() {
           </ChartContainer>
         </CardContent>
       </Card>
-
-      <AffiliateDepositHistory affiliateId={affiliate.id} />
 
       <Dialog open={withdrawDialog} onOpenChange={setWithdrawDialog}>
         <DialogContent className="bg-card border-border">
