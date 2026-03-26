@@ -20,5 +20,6 @@ export interface Affiliate {
   commission: number;
   status: "active" | "inactive" | "frozen";
   trend: number;
+  ref_code: string | null;
   created_at: string;
 }
