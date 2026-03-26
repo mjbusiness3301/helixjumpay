@@ -120,7 +120,7 @@ export default function Historico() {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-              <Calendar mode="single" selected={dateFrom} onSelect={setDateFrom} initialFocus className="p-3 pointer-events-auto" locale={ptBR} />
+              <Calendar mode="single" selected={dateFrom} onSelect={handleDateFrom} initialFocus className="p-3 pointer-events-auto" locale={ptBR} />
             </PopoverContent>
           </Popover>
         </div>
@@ -135,7 +135,7 @@ export default function Historico() {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-              <Calendar mode="single" selected={dateTo} onSelect={setDateTo} initialFocus className="p-3 pointer-events-auto" locale={ptBR} />
+              <Calendar mode="single" selected={dateTo} onSelect={handleDateTo} initialFocus className="p-3 pointer-events-auto" locale={ptBR} />
             </PopoverContent>
           </Popover>
         </div>
