@@ -83,6 +83,7 @@ export type Database = {
           id: string
           name: string
           phone: string | null
+          ref_code: string | null
           status: string
           total_deposits: number
           total_registrations: number
@@ -98,6 +99,7 @@ export type Database = {
           id?: string
           name: string
           phone?: string | null
+          ref_code?: string | null
           status?: string
           total_deposits?: number
           total_registrations?: number
@@ -113,6 +115,7 @@ export type Database = {
           id?: string
           name?: string
           phone?: string | null
+          ref_code?: string | null
           status?: string
           total_deposits?: number
           total_registrations?: number
