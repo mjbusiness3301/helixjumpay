@@ -60,6 +60,14 @@ export default function Historico() {
     });
   }, [deposits, statusFilter, dateFrom, dateTo]);
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  // Reset page when filters change
+  const handleStatusChange = (v: string) => { setStatusFilter(v); setPage(1); };
+  const handleDateFrom = (d: Date | undefined) => { setDateFrom(d); setPage(1); };
+  const handleDateTo = (d: Date | undefined) => { setDateTo(d); setPage(1); };
+
   const clearFilters = () => {
     setStatusFilter("all");
     setDateFrom(undefined);
