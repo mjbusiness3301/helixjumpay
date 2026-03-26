@@ -351,6 +351,9 @@ export default function Afiliados() {
                       <div>
                         <p className="font-semibold text-foreground group-hover:text-primary transition-colors">{affiliate.name}</p>
                         <p className="text-xs text-muted-foreground">{affiliate.email}</p>
+                        {affiliate.ref_code && (
+                          <p className="text-[10px] font-mono text-primary/70 mt-0.5">REF: {affiliate.ref_code}</p>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
