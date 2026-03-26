@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/chart";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from "recharts";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCompliance } from "@/contexts/ComplianceContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useCreateWithdrawal } from "@/hooks/useWithdrawals";
@@ -42,13 +43,14 @@ const chartConfig = {
 
 export default function AffiliateDashboard() {
   const { user } = useAuth();
+  const { complianceAffiliate, isComplianceMode } = useCompliance();
   const { toast } = useToast();
   const [withdrawDialog, setWithdrawDialog] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [copied, setCopied] = useState(false);
   const createWithdrawal = useCreateWithdrawal();
 
-  const { data: affiliate, isLoading } = useQuery({
+  const { data: fetchedAffiliate, isLoading } = useQuery({
     queryKey: ["my-affiliate", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -59,8 +61,10 @@ export default function AffiliateDashboard() {
       if (error) throw error;
       return data as Affiliate;
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && !isComplianceMode,
   });
+
+  const affiliate = isComplianceMode ? complianceAffiliate : fetchedAffiliate;
 
   const { hourlyData } = useHourlyChartData(affiliate?.id);
 
@@ -136,10 +140,12 @@ export default function AffiliateDashboard() {
             Acompanhe seu desempenho e ganhos
           </p>
         </div>
-        <Button className="gap-2" onClick={() => setWithdrawDialog(true)}>
-          <ArrowDownToLine className="h-4 w-4" />
-          Solicitar Saque
-        </Button>
+        {!isComplianceMode && (
+          <Button className="gap-2" onClick={() => setWithdrawDialog(true)}>
+            <ArrowDownToLine className="h-4 w-4" />
+            Solicitar Saque
+          </Button>
+        )}
       </div>
 
       <Card className="bg-card border-border/60">
