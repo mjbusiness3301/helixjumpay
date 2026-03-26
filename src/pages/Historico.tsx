@@ -210,6 +210,7 @@ export default function Historico() {
                 <TableRow>
                   <TableHead>Nome</TableHead>
                   <TableHead>Telefone</TableHead>
+                  <TableHead>Afiliado</TableHead>
                   <TableHead>Valor</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Criado em</TableHead>
@@ -223,6 +224,16 @@ export default function Historico() {
                     <TableRow key={dep.id}>
                       <TableCell className="font-medium">{dep.lead_name ?? "—"}</TableCell>
                       <TableCell>{dep.lead_phone ?? "—"}</TableCell>
+                      <TableCell>
+                        {(() => {
+                          const name = getAffiliateName(dep.lead_id);
+                          return name ? (
+                            <Badge variant="outline">{name}</Badge>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          );
+                        })()}
+                      </TableCell>
                       <TableCell>{formatCurrency(Number(dep.amount_cents))}</TableCell>
                       <TableCell>
                         <Badge variant={status.variant}>{status.label}</Badge>
