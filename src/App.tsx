@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ComplianceProvider } from "@/contexts/ComplianceContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { AffiliateLayout } from "@/components/AffiliateLayout";
@@ -26,87 +27,111 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            {/* Login */}
-            <Route path="/" element={<Index />} />
+          <ComplianceProvider>
+            <Routes>
+              {/* Login */}
+              <Route path="/" element={<Index />} />
 
-            {/* Admin routes */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <DashboardLayout>
-                    <Dashboard />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/afiliados"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <DashboardLayout>
-                    <Afiliados />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/saques"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <DashboardLayout>
-                    <Saques />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/contas"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <DashboardLayout>
-                    <Contas />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/historico"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <DashboardLayout>
-                    <Historico />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              }
-            />
+              {/* Admin routes */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <DashboardLayout>
+                      <Dashboard />
+                    </DashboardLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/afiliados"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <DashboardLayout>
+                      <Afiliados />
+                    </DashboardLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/saques"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <DashboardLayout>
+                      <Saques />
+                    </DashboardLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/contas"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <DashboardLayout>
+                      <Contas />
+                    </DashboardLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/historico"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <DashboardLayout>
+                      <Historico />
+                    </DashboardLayout>
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Affiliate routes */}
-            <Route
-              path="/painel"
-              element={
-                <ProtectedRoute requiredRole="affiliate">
-                  <AffiliateLayout>
-                    <AffiliateDashboard />
-                  </AffiliateLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/painel/configuracoes"
-              element={
-                <ProtectedRoute requiredRole="affiliate">
-                  <AffiliateLayout>
-                    <AffiliateSettings />
-                  </AffiliateLayout>
-                </ProtectedRoute>
-              }
-            />
+              {/* Admin compliance mode - view affiliate account */}
+              <Route
+                path="/admin/compliance"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AffiliateLayout>
+                      <AffiliateDashboard />
+                    </AffiliateLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/compliance/configuracoes"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AffiliateLayout>
+                      <AffiliateSettings />
+                    </AffiliateLayout>
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              {/* Affiliate routes */}
+              <Route
+                path="/painel"
+                element={
+                  <ProtectedRoute requiredRole="affiliate">
+                    <AffiliateLayout>
+                      <AffiliateDashboard />
+                    </AffiliateLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/painel/configuracoes"
+                element={
+                  <ProtectedRoute requiredRole="affiliate">
+                    <AffiliateLayout>
+                      <AffiliateSettings />
+                    </AffiliateLayout>
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </ComplianceProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
