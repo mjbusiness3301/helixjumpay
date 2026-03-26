@@ -3,6 +3,7 @@ import {
   Users,
   Wallet,
   ArrowDownToLine,
+  History,
   Settings,
   LogOut,
   PanelLeftClose,
