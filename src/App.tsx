@@ -14,6 +14,7 @@ import AffiliateDashboard from "./pages/AffiliateDashboard.tsx";
 import AffiliateSettings from "./pages/AffiliateSettings.tsx";
 import Saques from "./pages/Saques.tsx";
 import Contas from "./pages/Contas.tsx";
+import Historico from "./pages/Historico.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -66,6 +67,16 @@ const App = () => (
                 <ProtectedRoute requiredRole="admin">
                   <DashboardLayout>
                     <Contas />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/historico"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <DashboardLayout>
+                    <Historico />
                   </DashboardLayout>
                 </ProtectedRoute>
               }
