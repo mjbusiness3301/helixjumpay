@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +39,7 @@ import {
 } from "@/components/ui/chart";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from "recharts";
 import { useAffiliates, useCreateAffiliate, useUpdateAffiliate } from "@/hooks/useAffiliates";
+import { useCompliance } from "@/contexts/ComplianceContext";
 import type { Affiliate } from "@/types/database";
 import { useToast } from "@/hooks/use-toast";
 
