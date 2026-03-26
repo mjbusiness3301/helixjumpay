@@ -34,6 +34,7 @@ import { supabase } from "@/lib/supabase";
 import { useCreateWithdrawal } from "@/hooks/useWithdrawals";
 import { useToast } from "@/hooks/use-toast";
 import { useHourlyChartData } from "@/hooks/useActivityLogs";
+import { AffiliateDepositHistory } from "@/components/AffiliateDepositHistory";
 import type { Affiliate } from "@/types/database";
 
 const chartConfig = {
@@ -218,6 +219,8 @@ export default function AffiliateDashboard() {
           </ChartContainer>
         </CardContent>
       </Card>
+
+      <AffiliateDepositHistory affiliateId={affiliate.id} />
 
       <Dialog open={withdrawDialog} onOpenChange={setWithdrawDialog}>
         <DialogContent className="bg-card border-border">
