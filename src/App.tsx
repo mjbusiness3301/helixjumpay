@@ -18,6 +18,7 @@ import Contas from "./pages/Contas.tsx";
 import Historico from "./pages/Historico.tsx";
 import AffiliateHistorico from "./pages/AffiliateHistorico.tsx";
 import AffiliatePlano from "./pages/AffiliatePlano.tsx";
+import AffiliateIndicados from "./pages/AffiliateIndicados.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();

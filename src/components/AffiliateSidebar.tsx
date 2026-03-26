@@ -6,6 +6,7 @@ import {
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
+  UsersRound,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { NavLink } from "@/components/NavLink";
@@ -30,6 +31,7 @@ import { Button } from "@/components/ui/button";
 
 const affiliateMenuItems = [
   { title: "Dashboard", url: "/painel", icon: LayoutDashboard },
+  { title: "Indicados", url: "/painel/indicados", icon: UsersRound },
   { title: "Histórico", url: "/painel/historico", icon: History },
   { title: "Plano", url: "/painel/plano", icon: Crown },
   { title: "Configurações", url: "/painel/configuracoes", icon: Settings },
@@ -37,6 +39,7 @@ const affiliateMenuItems = [
 
 const complianceMenuItems = [
   { title: "Dashboard", url: "/admin/compliance", icon: LayoutDashboard },
+  { title: "Indicados", url: "/admin/compliance/indicados", icon: UsersRound },
   { title: "Histórico", url: "/admin/compliance/historico", icon: History },
   { title: "Plano", url: "/admin/compliance/plano", icon: Crown },
   { title: "Configurações", url: "/admin/compliance/configuracoes", icon: Settings },
