@@ -94,7 +94,7 @@ export function AffiliateSidebar() {
         </Button>
         <Button variant="ghost" size="sm" onClick={handleLogout} className="w-full justify-start text-muted-foreground hover:text-foreground">
           <LogOut className="h-4 w-4" />
-          {!collapsed && <span className="ml-2">Sair</span>}
+          {!collapsed && <span className="ml-2">{isComplianceMode ? "Voltar ao Admin" : "Sair"}</span>}
         </Button>
       </SidebarFooter>
     </Sidebar>
