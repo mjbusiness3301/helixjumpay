@@ -1,14 +1,68 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { startOfDay, endOfDay, subDays } from "date-fns";
 
-export function useDashboardStats() {
+type FilterType = "today" | "yesterday" | "7days" | "custom";
+
+interface DateFilter {
+  filter: FilterType;
+  from?: Date;
+  to?: Date;
+}
+
+function getDateRange(dateFilter: DateFilter): { from: string; to: string } | null {
+  const now = new Date();
+
+  switch (dateFilter.filter) {
+    case "today":
+      return {
+        from: startOfDay(now).toISOString(),
+        to: endOfDay(now).toISOString(),
+      };
+    case "yesterday": {
+      const yesterday = subDays(now, 1);
+      return {
+        from: startOfDay(yesterday).toISOString(),
+        to: endOfDay(yesterday).toISOString(),
+      };
+    }
+    case "7days":
+      return {
+        from: startOfDay(subDays(now, 6)).toISOString(),
+        to: endOfDay(now).toISOString(),
+      };
+    case "custom":
+      if (dateFilter.from && dateFilter.to) {
+        return {
+          from: startOfDay(dateFilter.from).toISOString(),
+          to: endOfDay(dateFilter.to).toISOString(),
+        };
+      }
+      return null;
+    default:
+      return null;
+  }
+}
+
+export function useDashboardStats(dateFilter?: DateFilter) {
+  const range = dateFilter ? getDateRange(dateFilter) : null;
+
   return useQuery({
-    queryKey: ["dashboard-stats"],
+    queryKey: ["dashboard-stats", dateFilter?.filter, range?.from, range?.to],
     queryFn: async () => {
+      let leadsQuery = supabase.from("leads").select("id", { count: "exact", head: true });
+      let depositsQuery = supabase.from("deposits").select("amount_cents, status, created_at");
+      const affiliatesQuery = supabase.from("affiliates").select("balance");
+
+      if (range) {
+        leadsQuery = leadsQuery.gte("created_at", range.from).lte("created_at", range.to);
+        depositsQuery = depositsQuery.gte("created_at", range.from).lte("created_at", range.to);
+      }
+
       const [leadsRes, depositsRes, affiliatesRes] = await Promise.all([
-        supabase.from("leads").select("id", { count: "exact", head: true }),
-        supabase.from("deposits").select("amount_cents, status"),
-        supabase.from("affiliates").select("balance"),
+        leadsQuery,
+        depositsQuery,
+        affiliatesQuery,
       ]);
 
       if (leadsRes.error) throw leadsRes.error;
