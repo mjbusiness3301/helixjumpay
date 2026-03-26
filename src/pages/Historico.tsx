@@ -82,7 +82,7 @@ export default function Historico() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="flex flex-wrap items-end gap-4">
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-muted-foreground">Status</label>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
