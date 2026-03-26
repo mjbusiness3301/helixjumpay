@@ -179,6 +179,8 @@ export default function Afiliados() {
   const createAffiliate = useCreateAffiliate();
   const updateAffiliate = useUpdateAffiliate();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { setComplianceAffiliate } = useCompliance();
 
   const [selectedAffiliate, setSelectedAffiliate] = useState<Affiliate | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
