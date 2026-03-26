@@ -72,6 +72,7 @@ export default function Historico() {
     setStatusFilter("all");
     setDateFrom(undefined);
     setDateTo(undefined);
+    setPage(1);
   };
 
   const hasFilters = statusFilter !== "all" || dateFrom || dateTo;
