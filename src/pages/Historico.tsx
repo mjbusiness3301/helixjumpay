@@ -27,13 +27,16 @@ import {
 } from "@/components/ui/table";
 import { format, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { History, Loader2, CalendarIcon, X } from "lucide-react";
+import { History, Loader2, CalendarIcon, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const PAGE_SIZE = 20;
 
 export default function Historico() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
+  const [page, setPage] = useState(1);
 
   const { data: deposits = [], isLoading } = useQuery({
     queryKey: ["all-deposits"],
