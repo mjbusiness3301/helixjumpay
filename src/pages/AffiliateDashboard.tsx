@@ -247,7 +247,7 @@ export default function AffiliateDashboard() {
             Olá, {affiliate.name.split(" ")[0]} 👋
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Acompanhe seu desempenho e ganhos
+            <span className="font-mono">ID: {affiliate.display_id}</span> · Acompanhe seu desempenho e ganhos
           </p>
         </div>
         {!isComplianceMode && (
