@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Search, Shield, Users, Gamepad2, Loader2, ShieldPlus, Coins } from "lucide-react";
+import { Search, Shield, Users, Gamepad2, Loader2, ShieldPlus, Coins, MinusCircle } from "lucide-react";
 import { useAdmins } from "@/hooks/useAdmins";
 import { useAffiliates } from "@/hooks/useAffiliates";
 import { useLeads } from "@/hooks/useLeads";
@@ -24,6 +24,7 @@ interface AccountRow {
   status: string;
   createdAt: string;
   userId?: string | null;
+  balanceCents?: number;
 }
 
 const roleConfig: Record<AccountRole, { label: string; icon: typeof Shield; color: string }> = {
@@ -36,10 +37,12 @@ function AccountRowComponent({
   account,
   onMakeAdmin,
   onAddBalance,
+  onRemoveBalance,
 }: {
   account: AccountRow;
   onMakeAdmin: (account: AccountRow) => void;
   onAddBalance: (account: AccountRow) => void;
+  onRemoveBalance: (account: AccountRow) => void;
 }) {
   const cfg = roleConfig[account.role];
   const RoleIcon = cfg.icon;
@@ -59,11 +62,18 @@ function AccountRowComponent({
       <td className="px-5 py-4 text-muted-foreground text-sm">
         {new Date(account.createdAt).toLocaleDateString("pt-BR")}
       </td>
-      <td className="px-5 py-4">
-        <Badge variant={account.status === "active" ? "default" : "secondary"}>
-          {account.status === "active" ? "Ativo" : "Congelado"}
-        </Badge>
-      </td>
+      {account.role === "player" && (
+        <td className="px-5 py-4 text-foreground text-sm font-medium">
+          R$ {((account.balanceCents || 0) / 100).toFixed(2)}
+        </td>
+      )}
+      {account.role !== "player" && (
+        <td className="px-5 py-4">
+          <Badge variant={account.status === "active" ? "default" : "secondary"}>
+            {account.status === "active" ? "Ativo" : "Congelado"}
+          </Badge>
+        </td>
+      )}
       <td className="px-5 py-4">
         <div className="flex items-center gap-2">
           {account.role !== "admin" && account.role === "affiliate" && account.userId && (
@@ -78,15 +88,26 @@ function AccountRowComponent({
             </Button>
           )}
           {account.role === "player" && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onAddBalance(account)}
-              className="text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10"
-              title="Adicionar Saldo"
-            >
-              <Coins className="h-4 w-4" />
-            </Button>
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onAddBalance(account)}
+                className="text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10"
+                title="Adicionar Saldo"
+              >
+                <Coins className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onRemoveBalance(account)}
+                className="text-destructive hover:text-destructive/80 hover:bg-destructive/10"
+                title="Remover Saldo"
+              >
+                <MinusCircle className="h-4 w-4" />
+              </Button>
+            </>
           )}
         </div>
       </td>
@@ -98,10 +119,12 @@ function AccountTable({
   accounts,
   onMakeAdmin,
   onAddBalance,
+  onRemoveBalance,
 }: {
   accounts: AccountRow[];
   onMakeAdmin: (account: AccountRow) => void;
   onAddBalance: (account: AccountRow) => void;
+  onRemoveBalance: (account: AccountRow) => void;
 }) {
   if (accounts.length === 0) {
     return (
@@ -119,7 +142,7 @@ function AccountTable({
             <th className="text-left px-5 py-3 font-medium text-muted-foreground">Usuário</th>
             <th className="text-left px-5 py-3 font-medium text-muted-foreground">Tipo</th>
             <th className="text-left px-5 py-3 font-medium text-muted-foreground">Criado em</th>
-            <th className="text-left px-5 py-3 font-medium text-muted-foreground">Status</th>
+            <th className="text-left px-5 py-3 font-medium text-muted-foreground">Status / Saldo</th>
             <th className="text-left px-5 py-3 font-medium text-muted-foreground">Ações</th>
           </tr>
         </thead>
@@ -130,6 +153,7 @@ function AccountTable({
               account={a}
               onMakeAdmin={onMakeAdmin}
               onAddBalance={onAddBalance}
+              onRemoveBalance={onRemoveBalance}
             />
           ))}
         </tbody>
@@ -146,6 +170,9 @@ export default function Contas() {
   const [balanceTarget, setBalanceTarget] = useState<AccountRow | null>(null);
   const [balanceAmount, setBalanceAmount] = useState("");
   const [addingBalance, setAddingBalance] = useState(false);
+  const [removeBalanceTarget, setRemoveBalanceTarget] = useState<AccountRow | null>(null);
+  const [removeAmount, setRemoveAmount] = useState("");
+  const [removingBalance, setRemovingBalance] = useState(false);
 
   const queryClient = useQueryClient();
   const { data: admins = [], isLoading: loadingAdmins } = useAdmins();
@@ -181,6 +208,7 @@ export default function Contas() {
       status: "active",
       createdAt: l.created_at,
       userId: null,
+      balanceCents: l.balance_cents,
     })),
   ];
 
@@ -244,6 +272,35 @@ export default function Contas() {
     }
   };
 
+  const handleRemoveBalance = async () => {
+    if (!removeBalanceTarget) return;
+    const cents = Math.round(parseFloat(removeAmount) * 100);
+    if (isNaN(cents) || cents <= 0) {
+      toast.error("Informe um valor válido");
+      return;
+    }
+    if (cents > (removeBalanceTarget.balanceCents || 0)) {
+      toast.error("Valor maior que o saldo disponível");
+      return;
+    }
+    setRemovingBalance(true);
+    try {
+      const { error } = await supabase.rpc("deduct_balance", {
+        p_lead_id: removeBalanceTarget.id,
+        p_amount: cents,
+      });
+      if (error) throw error;
+      toast.success(`R$ ${parseFloat(removeAmount).toFixed(2)} removido do saldo de ${removeBalanceTarget.name}`);
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      setRemoveBalanceTarget(null);
+      setRemoveAmount("");
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao remover saldo");
+    } finally {
+      setRemovingBalance(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -287,6 +344,7 @@ export default function Contas() {
               accounts={filtered}
               onMakeAdmin={setMakeAdminTarget}
               onAddBalance={setBalanceTarget}
+              onRemoveBalance={setRemoveBalanceTarget}
             />
           </Card>
         </TabsContent>
@@ -317,8 +375,11 @@ export default function Contas() {
           <DialogHeader>
             <DialogTitle>Adicionar Saldo</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground mb-2">
+          <p className="text-sm text-muted-foreground mb-1">
             Adicionar saldo para <strong>{balanceTarget?.name}</strong>
+          </p>
+          <p className="text-xs text-muted-foreground mb-2">
+            Saldo atual: <strong className="text-foreground">R$ {((balanceTarget?.balanceCents || 0) / 100).toFixed(2)}</strong>
           </p>
           <div className="space-y-2">
             <Label htmlFor="balance-amount">Valor (R$)</Label>
@@ -337,6 +398,40 @@ export default function Contas() {
             <Button onClick={handleAddBalance} disabled={addingBalance}>
               {addingBalance ? <Loader2 className="h-4 w-4 animate-spin" /> : <Coins className="h-4 w-4" />}
               Adicionar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog: Remover Saldo */}
+      <Dialog open={!!removeBalanceTarget} onOpenChange={(open) => { if (!open) { setRemoveBalanceTarget(null); setRemoveAmount(""); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Remover Saldo</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground mb-2">
+            Remover saldo de <strong>{removeBalanceTarget?.name}</strong>
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Saldo atual: <strong className="text-foreground">R$ {((removeBalanceTarget?.balanceCents || 0) / 100).toFixed(2)}</strong>
+          </p>
+          <div className="space-y-2">
+            <Label htmlFor="remove-amount">Valor a remover (R$)</Label>
+            <Input
+              id="remove-amount"
+              type="number"
+              min="0.01"
+              step="0.01"
+              placeholder="0.00"
+              value={removeAmount}
+              onChange={(e) => setRemoveAmount(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setRemoveBalanceTarget(null); setRemoveAmount(""); }}>Cancelar</Button>
+            <Button variant="destructive" onClick={handleRemoveBalance} disabled={removingBalance}>
+              {removingBalance ? <Loader2 className="h-4 w-4 animate-spin" /> : <MinusCircle className="h-4 w-4" />}
+              Remover
             </Button>
           </DialogFooter>
         </DialogContent>
