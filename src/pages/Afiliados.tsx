@@ -464,7 +464,10 @@ export default function Afiliados() {
               </Card>
             );
           })}
-        </div>
+              </div>
+            );
+          })()}
+        </>
       )}
 
       {/* Dialog de ajuste de comissão */}
