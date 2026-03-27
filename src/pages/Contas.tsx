@@ -272,6 +272,35 @@ export default function Contas() {
     }
   };
 
+  const handleRemoveBalance = async () => {
+    if (!removeBalanceTarget) return;
+    const cents = Math.round(parseFloat(removeAmount) * 100);
+    if (isNaN(cents) || cents <= 0) {
+      toast.error("Informe um valor válido");
+      return;
+    }
+    if (cents > (removeBalanceTarget.balanceCents || 0)) {
+      toast.error("Valor maior que o saldo disponível");
+      return;
+    }
+    setRemovingBalance(true);
+    try {
+      const { error } = await supabase.rpc("deduct_balance", {
+        p_lead_id: removeBalanceTarget.id,
+        p_amount: cents,
+      });
+      if (error) throw error;
+      toast.success(`R$ ${parseFloat(removeAmount).toFixed(2)} removido do saldo de ${removeBalanceTarget.name}`);
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      setRemoveBalanceTarget(null);
+      setRemoveAmount("");
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao remover saldo");
+    } finally {
+      setRemovingBalance(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -366,6 +395,40 @@ export default function Contas() {
             <Button onClick={handleAddBalance} disabled={addingBalance}>
               {addingBalance ? <Loader2 className="h-4 w-4 animate-spin" /> : <Coins className="h-4 w-4" />}
               Adicionar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog: Remover Saldo */}
+      <Dialog open={!!removeBalanceTarget} onOpenChange={(open) => { if (!open) { setRemoveBalanceTarget(null); setRemoveAmount(""); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Remover Saldo</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground mb-2">
+            Remover saldo de <strong>{removeBalanceTarget?.name}</strong>
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Saldo atual: <strong className="text-foreground">R$ {((removeBalanceTarget?.balanceCents || 0) / 100).toFixed(2)}</strong>
+          </p>
+          <div className="space-y-2">
+            <Label htmlFor="remove-amount">Valor a remover (R$)</Label>
+            <Input
+              id="remove-amount"
+              type="number"
+              min="0.01"
+              step="0.01"
+              placeholder="0.00"
+              value={removeAmount}
+              onChange={(e) => setRemoveAmount(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setRemoveBalanceTarget(null); setRemoveAmount(""); }}>Cancelar</Button>
+            <Button variant="destructive" onClick={handleRemoveBalance} disabled={removingBalance}>
+              {removingBalance ? <Loader2 className="h-4 w-4 animate-spin" /> : <MinusCircle className="h-4 w-4" />}
+              Remover
             </Button>
           </DialogFooter>
         </DialogContent>
