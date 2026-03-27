@@ -21,5 +21,6 @@ export interface Affiliate {
   status: "active" | "inactive" | "frozen";
   trend: number;
   ref_code: string | null;
+  display_id: number;
   created_at: string;
 }

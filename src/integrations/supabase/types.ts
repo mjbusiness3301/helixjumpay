@@ -79,6 +79,7 @@ export type Database = {
           commission: number
           created_at: string
           deposit_value: number
+          display_id: number
           email: string
           id: string
           name: string
@@ -95,6 +96,7 @@ export type Database = {
           commission?: number
           created_at?: string
           deposit_value?: number
+          display_id?: number
           email: string
           id?: string
           name: string
@@ -111,6 +113,7 @@ export type Database = {
           commission?: number
           created_at?: string
           deposit_value?: number
+          display_id?: number
           email?: string
           id?: string
           name?: string
