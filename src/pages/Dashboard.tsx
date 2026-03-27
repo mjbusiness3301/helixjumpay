@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,7 +54,33 @@ const Dashboard = () => {
     from: dateRange?.from,
     to: dateRange?.to,
   });
-  const { hourlyData } = useHourlyChartData();
+  const chartDateRange = useMemo(() => {
+    const now = new Date();
+    const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString();
+    const endOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999).toISOString();
+
+    switch (filter) {
+      case "today":
+        return { from: startOfDay(now), to: endOfDay(now) };
+      case "yesterday": {
+        const y = new Date(now);
+        y.setDate(y.getDate() - 1);
+        return { from: startOfDay(y), to: endOfDay(y) };
+      }
+      case "7days": {
+        const s = new Date(now);
+        s.setDate(s.getDate() - 6);
+        return { from: startOfDay(s), to: endOfDay(now) };
+      }
+      case "custom":
+        if (dateRange?.from && dateRange?.to) {
+          return { from: startOfDay(dateRange.from), to: endOfDay(dateRange.to) };
+        }
+        return { from: startOfDay(now), to: endOfDay(now) };
+    }
+  }, [filter, dateRange]);
+
+  const { hourlyData } = useHourlyChartData(undefined, chartDateRange.from, chartDateRange.to);
 
   const totalCadastros = stats?.totalCadastros ?? 0;
   const totalDepositos = stats?.totalDepositos ?? 0;
