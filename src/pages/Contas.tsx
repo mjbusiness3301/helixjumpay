@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Search, Shield, Users, Gamepad2, Loader2, ShieldPlus, Coins } from "lucide-react";
+import { Search, Shield, Users, Gamepad2, Loader2, ShieldPlus, Coins, MinusCircle } from "lucide-react";
 import { useAdmins } from "@/hooks/useAdmins";
 import { useAffiliates } from "@/hooks/useAffiliates";
 import { useLeads } from "@/hooks/useLeads";
@@ -24,6 +24,7 @@ interface AccountRow {
   status: string;
   createdAt: string;
   userId?: string | null;
+  balanceCents?: number;
 }
 
 const roleConfig: Record<AccountRole, { label: string; icon: typeof Shield; color: string }> = {
@@ -59,11 +60,18 @@ function AccountRowComponent({
       <td className="px-5 py-4 text-muted-foreground text-sm">
         {new Date(account.createdAt).toLocaleDateString("pt-BR")}
       </td>
-      <td className="px-5 py-4">
-        <Badge variant={account.status === "active" ? "default" : "secondary"}>
-          {account.status === "active" ? "Ativo" : "Congelado"}
-        </Badge>
-      </td>
+      {account.role === "player" && (
+        <td className="px-5 py-4 text-foreground text-sm font-medium">
+          R$ {((account.balanceCents || 0) / 100).toFixed(2)}
+        </td>
+      )}
+      {account.role !== "player" && (
+        <td className="px-5 py-4">
+          <Badge variant={account.status === "active" ? "default" : "secondary"}>
+            {account.status === "active" ? "Ativo" : "Congelado"}
+          </Badge>
+        </td>
+      )}
       <td className="px-5 py-4">
         <div className="flex items-center gap-2">
           {account.role !== "admin" && account.role === "affiliate" && account.userId && (
@@ -78,15 +86,26 @@ function AccountRowComponent({
             </Button>
           )}
           {account.role === "player" && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onAddBalance(account)}
-              className="text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10"
-              title="Adicionar Saldo"
-            >
-              <Coins className="h-4 w-4" />
-            </Button>
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onAddBalance(account)}
+                className="text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10"
+                title="Adicionar Saldo"
+              >
+                <Coins className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onRemoveBalance(account)}
+                className="text-destructive hover:text-destructive/80 hover:bg-destructive/10"
+                title="Remover Saldo"
+              >
+                <MinusCircle className="h-4 w-4" />
+              </Button>
+            </>
           )}
         </div>
       </td>
