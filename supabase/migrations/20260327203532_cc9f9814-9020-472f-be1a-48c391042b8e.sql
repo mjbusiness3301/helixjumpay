@@ -1,0 +1,1 @@
+ALTER TABLE public.affiliates ADD CONSTRAINT affiliates_commission_range CHECK (commission >= 0 AND commission <= 100);
