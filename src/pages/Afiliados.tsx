@@ -207,6 +207,10 @@ export default function Afiliados() {
       toast({ title: "Senha muito curta", description: "A senha deve ter no mínimo 6 caracteres.", variant: "destructive" });
       return;
     }
+    if (Number(form.commission) < 0 || Number(form.commission) > 100) {
+      toast({ title: "Comissão inválida", description: "A comissão deve ser entre 0% e 100%.", variant: "destructive" });
+      return;
+    }
     try {
       await createAffiliate.mutateAsync({
         name: form.name,
@@ -233,6 +237,10 @@ export default function Afiliados() {
 
   const handleCommissionSave = async () => {
     if (!commissionDialog.affiliate) return;
+    if (Number(commissionDialog.value) < 0 || Number(commissionDialog.value) > 100) {
+      toast({ title: "Comissão inválida", description: "A comissão deve ser entre 0% e 100%.", variant: "destructive" });
+      return;
+    }
     try {
       await updateAffiliate.mutateAsync({
         id: commissionDialog.affiliate.id,
@@ -312,7 +320,7 @@ export default function Afiliados() {
                 <div className="space-y-2">
                   <Label htmlFor="af-commission">Comissão (%)</Label>
                   <div className="relative">
-                    <Input id="af-commission" type="number" min="0" max="100" step="0.5" placeholder="Ex: 10" value={form.commission} onChange={(e) => setForm((f) => ({ ...f, commission: e.target.value }))} className="pr-8" />
+                    <Input id="af-commission" type="number" min="0" max="100" step="0.5" placeholder="Ex: 10" value={form.commission} onChange={(e) => { const v = e.target.value; if (v === "" || (Number(v) >= 0 && Number(v) <= 100)) setForm((f) => ({ ...f, commission: v })); }} className="pr-8" />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
                   </div>
                 </div>
@@ -487,7 +495,7 @@ export default function Afiliados() {
             <div className="space-y-2">
               <Label htmlFor="edit-commission">Comissão (%)</Label>
               <div className="relative">
-                <Input id="edit-commission" type="number" min="0" max="100" step="0.5" value={commissionDialog.value} onChange={(e) => setCommissionDialog((prev) => ({ ...prev, value: e.target.value }))} className="pr-8" />
+                <Input id="edit-commission" type="number" min="0" max="100" step="0.5" value={commissionDialog.value} onChange={(e) => { const v = e.target.value; if (v === "" || (Number(v) >= 0 && Number(v) <= 100)) setCommissionDialog((prev) => ({ ...prev, value: v })); }} className="pr-8" />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
               </div>
             </div>
