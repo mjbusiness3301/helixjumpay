@@ -6,12 +6,74 @@ export function useAffiliates() {
   return useQuery({
     queryKey: ["affiliates"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: affiliatesData, error: affiliatesError } = await supabase
         .from("affiliates")
         .select("*")
         .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data as Affiliate[];
+
+      if (affiliatesError) throw affiliatesError;
+
+      const affiliates = (affiliatesData ?? []) as Affiliate[];
+      if (affiliates.length === 0) return affiliates;
+
+      const affiliateIds = affiliates.map((affiliate) => affiliate.id);
+
+      const { data: leadsData, error: leadsError } = await supabase
+        .from("leads")
+        .select("id, affiliate_id")
+        .in("affiliate_id", affiliateIds);
+
+      if (leadsError) throw leadsError;
+
+      const registrationsByAffiliate = new Map<string, number>();
+      const leadToAffiliate = new Map<string, string>();
+
+      for (const lead of leadsData ?? []) {
+        if (!lead.affiliate_id) continue;
+        leadToAffiliate.set(lead.id, lead.affiliate_id);
+        registrationsByAffiliate.set(
+          lead.affiliate_id,
+          (registrationsByAffiliate.get(lead.affiliate_id) ?? 0) + 1
+        );
+      }
+
+      const leadIds = Array.from(leadToAffiliate.keys());
+      const depositsByAffiliate = new Map<string, number>();
+      const depositValueByAffiliate = new Map<string, number>();
+
+      if (leadIds.length > 0) {
+        const { data: depositsData, error: depositsError } = await supabase
+          .from("deposits")
+          .select("lead_id, amount_cents, status")
+          .eq("status", "confirmed")
+          .in("lead_id", leadIds);
+
+        if (depositsError) throw depositsError;
+
+        for (const deposit of depositsData ?? []) {
+          if (!deposit.lead_id) continue;
+
+          const affiliateId = leadToAffiliate.get(deposit.lead_id);
+          if (!affiliateId) continue;
+
+          depositsByAffiliate.set(
+            affiliateId,
+            (depositsByAffiliate.get(affiliateId) ?? 0) + 1
+          );
+
+          depositValueByAffiliate.set(
+            affiliateId,
+            (depositValueByAffiliate.get(affiliateId) ?? 0) + Number(deposit.amount_cents) / 100
+          );
+        }
+      }
+
+      return affiliates.map((affiliate) => ({
+        ...affiliate,
+        total_registrations: registrationsByAffiliate.get(affiliate.id) ?? 0,
+        total_deposits: depositsByAffiliate.get(affiliate.id) ?? 0,
+        deposit_value: depositValueByAffiliate.get(affiliate.id) ?? 0,
+      })) as Affiliate[];
     },
   });
 }
