@@ -31,6 +31,7 @@ import {
   Snowflake,
   Percent,
   Loader2,
+  Search,
 } from "lucide-react";
 import {
   ChartContainer,
