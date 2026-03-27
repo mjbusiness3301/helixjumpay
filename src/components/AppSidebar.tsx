@@ -73,7 +73,7 @@ export function AppSidebar() {
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={location.pathname === item.url} tooltip={item.title}>
-                    <NavLink to={item.url} className="hover:bg-sidebar-accent/50" activeClassName="bg-primary/10 text-primary font-medium">
+                    <NavLink to={item.url} className="hover:bg-sidebar-accent/50">
                       <item.icon className="h-4 w-4" />
                       {!collapsed && <span>{item.title}</span>}
                     </NavLink>
