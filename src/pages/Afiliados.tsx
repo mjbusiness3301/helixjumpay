@@ -31,6 +31,7 @@ import {
   Snowflake,
   Percent,
   Loader2,
+  Search,
 } from "lucide-react";
 import {
   ChartContainer,
@@ -186,6 +187,7 @@ export default function Afiliados() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
   const [form, setForm] = useState({ name: "", email: "", password: "", commission: "" });
+  const [search, setSearch] = useState("");
   const [commissionDialog, setCommissionDialog] = useState<{ open: boolean; affiliate: Affiliate | null; value: string }>({
     open: false,
     affiliate: null,
@@ -333,8 +335,39 @@ export default function Afiliados() {
           <p className="text-sm mt-1">Clique em "Cadastrar Afiliado" para começar</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {affiliates.map((affiliate) => {
+        <>
+          <div className="relative max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por nome, e-mail ou código..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          {(() => {
+            const filtered = affiliates.filter((a) => {
+              const q = search.toLowerCase();
+              return (
+                a.name.toLowerCase().includes(q) ||
+                a.email.toLowerCase().includes(q) ||
+                (a.ref_code && a.ref_code.toLowerCase().includes(q))
+              );
+            });
+
+            if (filtered.length === 0) {
+              return (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Search className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                  <p className="text-sm">Nenhum afiliado encontrado para "{search}"</p>
+                </div>
+              );
+            }
+
+            return (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filtered.map((affiliate) => {
             const isPositive = affiliate.trend >= 0;
             return (
               <Card
@@ -431,7 +464,10 @@ export default function Afiliados() {
               </Card>
             );
           })}
-        </div>
+              </div>
+            );
+          })()}
+        </>
       )}
 
       {/* Dialog de ajuste de comissão */}
