@@ -208,24 +208,29 @@ export default function AffiliateDashboard() {
     }
   };
 
+  const totalReg = realStats?.totalRegistrations ?? 0;
+  const totalDep = realStats?.totalDeposits ?? 0;
+  const depValue = realStats?.depositValue ?? 0;
+  const earningsCalc = depValue * (Number(affiliate.commission) / 100);
+
   const stats = [
     {
       label: "Cadastros",
-      value: affiliate.total_registrations.toLocaleString("pt-BR"),
+      value: totalReg.toLocaleString("pt-BR"),
       icon: Users,
-      trend: affiliate.trend,
+      trend: null,
     },
     {
       label: "Depósitos",
-      value: affiliate.total_deposits.toLocaleString("pt-BR"),
+      value: totalDep.toLocaleString("pt-BR"),
       icon: Wallet,
-      trend: affiliate.trend * 0.8,
+      trend: null,
     },
     {
       label: "Ganhos",
-      value: earnings.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
+      value: earningsCalc.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
       icon: DollarSign,
-      trend: affiliate.trend * 1.2,
+      trend: null,
     },
     {
       label: "Saldo Disponível",
