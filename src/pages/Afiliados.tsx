@@ -108,7 +108,7 @@ function AffiliateDetailDashboard({
         <div>
           <h1 className="text-2xl font-bold text-foreground">{affiliate.name}</h1>
           <p className="text-sm text-muted-foreground">
-            {affiliate.email} · Desde{" "}
+            <span className="font-mono">ID: {affiliate.display_id}</span> · {affiliate.email} · Desde{" "}
             {new Date(affiliate.created_at).toLocaleDateString("pt-BR")}
           </p>
         </div>
