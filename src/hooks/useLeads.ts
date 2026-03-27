@@ -11,6 +11,7 @@ export interface Lead {
   utm_source: string | null;
   utm_medium: string | null;
   utm_campaign: string | null;
+  balance_cents: number;
   created_at: string;
 }
 
