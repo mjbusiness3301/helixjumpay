@@ -108,7 +108,7 @@ function AffiliateDetailDashboard({
         <div>
           <h1 className="text-2xl font-bold text-foreground">{affiliate.name}</h1>
           <p className="text-sm text-muted-foreground">
-            {affiliate.email} · Desde{" "}
+            <span className="font-mono">ID: {affiliate.display_id}</span> · {affiliate.email} · Desde{" "}
             {new Date(affiliate.created_at).toLocaleDateString("pt-BR")}
           </p>
         </div>
@@ -339,7 +339,7 @@ export default function Afiliados() {
           <div className="relative max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar por nome, e-mail ou código..."
+              placeholder="Buscar por ID, nome, e-mail ou código..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9"
@@ -352,7 +352,8 @@ export default function Afiliados() {
               return (
                 a.name.toLowerCase().includes(q) ||
                 a.email.toLowerCase().includes(q) ||
-                (a.ref_code && a.ref_code.toLowerCase().includes(q))
+                (a.ref_code && a.ref_code.toLowerCase().includes(q)) ||
+                String(a.display_id) === q.trim()
               );
             });
 
@@ -384,9 +385,12 @@ export default function Afiliados() {
                       <div>
                         <p className="font-semibold text-foreground group-hover:text-primary transition-colors">{affiliate.name}</p>
                         <p className="text-xs text-muted-foreground">{affiliate.email}</p>
-                        {affiliate.ref_code && (
-                          <p className="text-[10px] font-mono text-primary/70 mt-0.5">REF: {affiliate.ref_code}</p>
-                        )}
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[10px] font-mono text-muted-foreground">ID: {affiliate.display_id}</span>
+                          {affiliate.ref_code && (
+                            <span className="text-[10px] font-mono text-primary/70">REF: {affiliate.ref_code}</span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
