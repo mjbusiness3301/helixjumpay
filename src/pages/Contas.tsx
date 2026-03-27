@@ -37,10 +37,12 @@ function AccountRowComponent({
   account,
   onMakeAdmin,
   onAddBalance,
+  onRemoveBalance,
 }: {
   account: AccountRow;
   onMakeAdmin: (account: AccountRow) => void;
   onAddBalance: (account: AccountRow) => void;
+  onRemoveBalance: (account: AccountRow) => void;
 }) {
   const cfg = roleConfig[account.role];
   const RoleIcon = cfg.icon;
@@ -117,10 +119,12 @@ function AccountTable({
   accounts,
   onMakeAdmin,
   onAddBalance,
+  onRemoveBalance,
 }: {
   accounts: AccountRow[];
   onMakeAdmin: (account: AccountRow) => void;
   onAddBalance: (account: AccountRow) => void;
+  onRemoveBalance: (account: AccountRow) => void;
 }) {
   if (accounts.length === 0) {
     return (
@@ -138,7 +142,7 @@ function AccountTable({
             <th className="text-left px-5 py-3 font-medium text-muted-foreground">Usuário</th>
             <th className="text-left px-5 py-3 font-medium text-muted-foreground">Tipo</th>
             <th className="text-left px-5 py-3 font-medium text-muted-foreground">Criado em</th>
-            <th className="text-left px-5 py-3 font-medium text-muted-foreground">Status</th>
+            <th className="text-left px-5 py-3 font-medium text-muted-foreground">Status / Saldo</th>
             <th className="text-left px-5 py-3 font-medium text-muted-foreground">Ações</th>
           </tr>
         </thead>
@@ -149,6 +153,7 @@ function AccountTable({
               account={a}
               onMakeAdmin={onMakeAdmin}
               onAddBalance={onAddBalance}
+              onRemoveBalance={onRemoveBalance}
             />
           ))}
         </tbody>
@@ -165,6 +170,9 @@ export default function Contas() {
   const [balanceTarget, setBalanceTarget] = useState<AccountRow | null>(null);
   const [balanceAmount, setBalanceAmount] = useState("");
   const [addingBalance, setAddingBalance] = useState(false);
+  const [removeBalanceTarget, setRemoveBalanceTarget] = useState<AccountRow | null>(null);
+  const [removeAmount, setRemoveAmount] = useState("");
+  const [removingBalance, setRemovingBalance] = useState(false);
 
   const queryClient = useQueryClient();
   const { data: admins = [], isLoading: loadingAdmins } = useAdmins();
@@ -200,6 +208,7 @@ export default function Contas() {
       status: "active",
       createdAt: l.created_at,
       userId: null,
+      balanceCents: l.balance_cents,
     })),
   ];
 
@@ -306,6 +315,7 @@ export default function Contas() {
               accounts={filtered}
               onMakeAdmin={setMakeAdminTarget}
               onAddBalance={setBalanceTarget}
+              onRemoveBalance={setRemoveBalanceTarget}
             />
           </Card>
         </TabsContent>
