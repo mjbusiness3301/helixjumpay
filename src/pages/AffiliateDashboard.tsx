@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -88,7 +88,74 @@ export default function AffiliateDashboard() {
 
   const affiliate = isComplianceMode ? complianceAffiliate : fetchedAffiliate;
 
-  const { hourlyData } = useHourlyChartData(affiliate?.id);
+  // Compute date range for filtering
+  const dateFilterRange = useMemo(() => {
+    const now = new Date();
+    const sod = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString();
+    const eod = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999).toISOString();
+    switch (filter) {
+      case "today":
+        return { from: sod(now), to: eod(now) };
+      case "yesterday": {
+        const y = new Date(now);
+        y.setDate(y.getDate() - 1);
+        return { from: sod(y), to: eod(y) };
+      }
+      case "7days": {
+        const s = new Date(now);
+        s.setDate(s.getDate() - 6);
+        return { from: sod(s), to: eod(now) };
+      }
+      case "custom":
+        if (dateRange?.from && dateRange?.to) {
+          return { from: sod(dateRange.from), to: eod(dateRange.to) };
+        }
+        return { from: sod(now), to: eod(now) };
+    }
+  }, [filter, dateRange]);
+
+  // Fetch real stats from leads + deposits tables
+  const { data: realStats } = useQuery({
+    queryKey: ["affiliate-real-stats", affiliate?.id, dateFilterRange.from, dateFilterRange.to],
+    queryFn: async () => {
+      const [leadsRes, depositsRes] = await Promise.all([
+        supabase
+          .from("leads")
+          .select("id", { count: "exact" })
+          .eq("affiliate_id", affiliate!.id)
+          .gte("created_at", dateFilterRange.from)
+          .lte("created_at", dateFilterRange.to),
+        supabase
+          .from("deposits")
+          .select("amount_cents, status, lead_id")
+          .gte("created_at", dateFilterRange.from)
+          .lte("created_at", dateFilterRange.to),
+      ]);
+
+      if (leadsRes.error) throw leadsRes.error;
+      if (depositsRes.error) throw depositsRes.error;
+
+      // Get affiliate's lead IDs to filter deposits
+      const { data: affLeads } = await supabase
+        .from("leads")
+        .select("id")
+        .eq("affiliate_id", affiliate!.id);
+
+      const affLeadIds = new Set((affLeads || []).map((l) => l.id));
+      const affDeposits = (depositsRes.data || []).filter(
+        (d) => d.lead_id && affLeadIds.has(d.lead_id) && d.status === "confirmed"
+      );
+
+      const totalRegistrations = leadsRes.count ?? 0;
+      const totalDeposits = affDeposits.length;
+      const depositValue = affDeposits.reduce((s, d) => s + Number(d.amount_cents), 0) / 100;
+
+      return { totalRegistrations, totalDeposits, depositValue };
+    },
+    enabled: !!affiliate?.id,
+  });
+
+  const { hourlyData } = useHourlyChartData(affiliate?.id, dateFilterRange.from, dateFilterRange.to);
 
   if (isLoading || !affiliate) {
     return (
@@ -99,7 +166,6 @@ export default function AffiliateDashboard() {
   }
 
   const referralLink = `https://helixjumpay.online?ref=${affiliate.ref_code || affiliate.id}`;
-  const earnings = Number(affiliate.deposit_value) * (Number(affiliate.commission) / 100);
   const balance = Number(affiliate.balance);
 
   const handleCopy = () => {
@@ -141,24 +207,29 @@ export default function AffiliateDashboard() {
     }
   };
 
+  const totalReg = realStats?.totalRegistrations ?? 0;
+  const totalDep = realStats?.totalDeposits ?? 0;
+  const depValue = realStats?.depositValue ?? 0;
+  const earningsCalc = depValue * (Number(affiliate.commission) / 100);
+
   const stats = [
     {
       label: "Cadastros",
-      value: affiliate.total_registrations.toLocaleString("pt-BR"),
+      value: totalReg.toLocaleString("pt-BR"),
       icon: Users,
-      trend: affiliate.trend,
+      trend: null,
     },
     {
       label: "Depósitos",
-      value: affiliate.total_deposits.toLocaleString("pt-BR"),
+      value: totalDep.toLocaleString("pt-BR"),
       icon: Wallet,
-      trend: affiliate.trend * 0.8,
+      trend: null,
     },
     {
       label: "Ganhos",
-      value: earnings.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
+      value: earningsCalc.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
       icon: DollarSign,
-      trend: affiliate.trend * 1.2,
+      trend: null,
     },
     {
       label: "Saldo Disponível",
