@@ -166,7 +166,6 @@ export default function AffiliateDashboard() {
   }
 
   const referralLink = `https://helixjumpay.online?ref=${affiliate.ref_code || affiliate.id}`;
-  const earnings = Number(affiliate.deposit_value) * (Number(affiliate.commission) / 100);
   const balance = Number(affiliate.balance);
 
   const handleCopy = () => {
