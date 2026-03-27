@@ -16,7 +16,8 @@ export function useActivityLogs(affiliateId?: string) {
       let query = supabase
         .from("activity_logs")
         .select("*")
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: true })
+        .limit(5000);
 
       if (affiliateId) {
         query = query.eq("affiliate_id", affiliateId);
