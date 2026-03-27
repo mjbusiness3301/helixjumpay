@@ -375,8 +375,11 @@ export default function Contas() {
           <DialogHeader>
             <DialogTitle>Adicionar Saldo</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground mb-2">
+          <p className="text-sm text-muted-foreground mb-1">
             Adicionar saldo para <strong>{balanceTarget?.name}</strong>
+          </p>
+          <p className="text-xs text-muted-foreground mb-2">
+            Saldo atual: <strong className="text-foreground">R$ {((balanceTarget?.balanceCents || 0) / 100).toFixed(2)}</strong>
           </p>
           <div className="space-y-2">
             <Label htmlFor="balance-amount">Valor (R$)</Label>
