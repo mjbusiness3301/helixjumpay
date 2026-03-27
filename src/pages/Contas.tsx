@@ -2,11 +2,17 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Shield, Users, Gamepad2, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Search, Shield, Users, Gamepad2, Loader2, ShieldPlus, Coins } from "lucide-react";
 import { useAdmins } from "@/hooks/useAdmins";
 import { useAffiliates } from "@/hooks/useAffiliates";
 import { useLeads } from "@/hooks/useLeads";
+import { supabase } from "@/lib/supabase";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 type AccountRole = "admin" | "affiliate" | "player";
 
@@ -17,6 +23,7 @@ interface AccountRow {
   role: AccountRole;
   status: string;
   createdAt: string;
+  userId?: string | null;
 }
 
 const roleConfig: Record<AccountRole, { label: string; icon: typeof Shield; color: string }> = {
@@ -25,7 +32,15 @@ const roleConfig: Record<AccountRole, { label: string; icon: typeof Shield; colo
   player: { label: "Jogador", icon: Gamepad2, color: "text-emerald-500" },
 };
 
-function AccountRowComponent({ account }: { account: AccountRow }) {
+function AccountRowComponent({
+  account,
+  onMakeAdmin,
+  onAddBalance,
+}: {
+  account: AccountRow;
+  onMakeAdmin: (account: AccountRow) => void;
+  onAddBalance: (account: AccountRow) => void;
+}) {
   const cfg = roleConfig[account.role];
   const RoleIcon = cfg.icon;
 
@@ -49,11 +64,45 @@ function AccountRowComponent({ account }: { account: AccountRow }) {
           {account.status === "active" ? "Ativo" : "Congelado"}
         </Badge>
       </td>
+      <td className="px-5 py-4">
+        <div className="flex items-center gap-2">
+          {account.role !== "admin" && account.role === "affiliate" && account.userId && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onMakeAdmin(account)}
+              className="text-amber-500 hover:text-amber-400 hover:bg-amber-500/10"
+              title="Tornar Administrador"
+            >
+              <ShieldPlus className="h-4 w-4" />
+            </Button>
+          )}
+          {account.role === "player" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onAddBalance(account)}
+              className="text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10"
+              title="Adicionar Saldo"
+            >
+              <Coins className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      </td>
     </tr>
   );
 }
 
-function AccountTable({ accounts }: { accounts: AccountRow[] }) {
+function AccountTable({
+  accounts,
+  onMakeAdmin,
+  onAddBalance,
+}: {
+  accounts: AccountRow[];
+  onMakeAdmin: (account: AccountRow) => void;
+  onAddBalance: (account: AccountRow) => void;
+}) {
   if (accounts.length === 0) {
     return (
       <div className="px-5 py-12 text-center text-muted-foreground">
@@ -71,11 +120,17 @@ function AccountTable({ accounts }: { accounts: AccountRow[] }) {
             <th className="text-left px-5 py-3 font-medium text-muted-foreground">Tipo</th>
             <th className="text-left px-5 py-3 font-medium text-muted-foreground">Criado em</th>
             <th className="text-left px-5 py-3 font-medium text-muted-foreground">Status</th>
+            <th className="text-left px-5 py-3 font-medium text-muted-foreground">Ações</th>
           </tr>
         </thead>
         <tbody>
           {accounts.map((a) => (
-            <AccountRowComponent key={a.id} account={a} />
+            <AccountRowComponent
+              key={a.id}
+              account={a}
+              onMakeAdmin={onMakeAdmin}
+              onAddBalance={onAddBalance}
+            />
           ))}
         </tbody>
       </table>
@@ -86,14 +141,19 @@ function AccountTable({ accounts }: { accounts: AccountRow[] }) {
 export default function Contas() {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState("all");
+  const [makeAdminTarget, setMakeAdminTarget] = useState<AccountRow | null>(null);
+  const [makingAdmin, setMakingAdmin] = useState(false);
+  const [balanceTarget, setBalanceTarget] = useState<AccountRow | null>(null);
+  const [balanceAmount, setBalanceAmount] = useState("");
+  const [addingBalance, setAddingBalance] = useState(false);
 
+  const queryClient = useQueryClient();
   const { data: admins = [], isLoading: loadingAdmins } = useAdmins();
   const { data: affiliates = [], isLoading: loadingAffiliates } = useAffiliates();
   const { data: leads = [], isLoading: loadingLeads } = useLeads();
 
   const isLoading = loadingAdmins || loadingAffiliates || loadingLeads;
 
-  // Merge admins + affiliates into unified account list
   const allAccounts: AccountRow[] = [
     ...admins.map((a) => ({
       id: a.id,
@@ -102,6 +162,7 @@ export default function Contas() {
       role: "admin" as AccountRole,
       status: a.status,
       createdAt: a.created_at,
+      userId: a.user_id,
     })),
     ...affiliates.map((a) => ({
       id: a.id,
@@ -110,6 +171,7 @@ export default function Contas() {
       role: "affiliate" as AccountRole,
       status: a.status,
       createdAt: a.created_at,
+      userId: a.user_id,
     })),
     ...leads.map((l) => ({
       id: l.id,
@@ -118,6 +180,7 @@ export default function Contas() {
       role: "player" as AccountRole,
       status: "active",
       createdAt: l.created_at,
+      userId: null,
     })),
   ];
 
@@ -134,6 +197,51 @@ export default function Contas() {
     admin: allAccounts.filter((a) => a.role === "admin").length,
     affiliate: allAccounts.filter((a) => a.role === "affiliate").length,
     player: allAccounts.filter((a) => a.role === "player").length,
+  };
+
+  const handleMakeAdmin = async () => {
+    if (!makeAdminTarget || !makeAdminTarget.userId) return;
+    setMakingAdmin(true);
+    try {
+      const { error } = await supabase.from("admins").insert({
+        user_id: makeAdminTarget.userId,
+        name: makeAdminTarget.name,
+        email: makeAdminTarget.email,
+      });
+      if (error) throw error;
+      toast.success(`${makeAdminTarget.name} agora é administrador!`);
+      queryClient.invalidateQueries({ queryKey: ["admins"] });
+      setMakeAdminTarget(null);
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao tornar administrador");
+    } finally {
+      setMakingAdmin(false);
+    }
+  };
+
+  const handleAddBalance = async () => {
+    if (!balanceTarget) return;
+    const cents = Math.round(parseFloat(balanceAmount) * 100);
+    if (isNaN(cents) || cents <= 0) {
+      toast.error("Informe um valor válido");
+      return;
+    }
+    setAddingBalance(true);
+    try {
+      const { error } = await supabase.rpc("increment_balance", {
+        p_lead_id: balanceTarget.id,
+        p_amount: cents,
+      });
+      if (error) throw error;
+      toast.success(`R$ ${parseFloat(balanceAmount).toFixed(2)} adicionado ao saldo de ${balanceTarget.name}`);
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      setBalanceTarget(null);
+      setBalanceAmount("");
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao adicionar saldo");
+    } finally {
+      setAddingBalance(false);
+    }
   };
 
   if (isLoading) {
@@ -175,10 +283,64 @@ export default function Contas() {
 
         <TabsContent value={tab} className="mt-4">
           <Card className="bg-card border-border/60 overflow-hidden">
-            <AccountTable accounts={filtered} />
+            <AccountTable
+              accounts={filtered}
+              onMakeAdmin={setMakeAdminTarget}
+              onAddBalance={setBalanceTarget}
+            />
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Dialog: Tornar Admin */}
+      <Dialog open={!!makeAdminTarget} onOpenChange={(open) => !open && setMakeAdminTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Tornar Administrador</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Tem certeza que deseja tornar <strong>{makeAdminTarget?.name}</strong> ({makeAdminTarget?.email}) um administrador? Essa conta terá acesso total ao painel admin.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setMakeAdminTarget(null)}>Cancelar</Button>
+            <Button onClick={handleMakeAdmin} disabled={makingAdmin}>
+              {makingAdmin ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldPlus className="h-4 w-4" />}
+              Confirmar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog: Adicionar Saldo */}
+      <Dialog open={!!balanceTarget} onOpenChange={(open) => { if (!open) { setBalanceTarget(null); setBalanceAmount(""); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adicionar Saldo</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground mb-2">
+            Adicionar saldo para <strong>{balanceTarget?.name}</strong>
+          </p>
+          <div className="space-y-2">
+            <Label htmlFor="balance-amount">Valor (R$)</Label>
+            <Input
+              id="balance-amount"
+              type="number"
+              min="0.01"
+              step="0.01"
+              placeholder="0.00"
+              value={balanceAmount}
+              onChange={(e) => setBalanceAmount(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setBalanceTarget(null); setBalanceAmount(""); }}>Cancelar</Button>
+            <Button onClick={handleAddBalance} disabled={addingBalance}>
+              {addingBalance ? <Loader2 className="h-4 w-4 animate-spin" /> : <Coins className="h-4 w-4" />}
+              Adicionar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
