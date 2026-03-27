@@ -30,15 +30,26 @@ export function useActivityLogs(affiliateId?: string) {
   });
 }
 
-export function useHourlyChartData(affiliateId?: string) {
+export function useHourlyChartData(affiliateId?: string, dateFrom?: string, dateTo?: string) {
   const { data: logs = [], isLoading } = useActivityLogs(affiliateId);
 
-  // Aggregate logs by hour
   const hourlyData = Array.from({ length: 24 }, (_, i) => {
     const hour = `${String(i).padStart(2, "0")}:00`;
     const hourLogs = logs.filter((log) => {
-      const logHour = new Date(log.created_at).getHours();
-      return logHour === i;
+      const logDate = new Date(log.created_at);
+      const logHour = logDate.getHours();
+      if (logHour !== i) return false;
+
+      if (dateFrom && dateTo) {
+        return logDate >= new Date(dateFrom) && logDate <= new Date(dateTo);
+      }
+      // Default: today
+      const now = new Date();
+      return (
+        logDate.getFullYear() === now.getFullYear() &&
+        logDate.getMonth() === now.getMonth() &&
+        logDate.getDate() === now.getDate()
+      );
     });
 
     return {

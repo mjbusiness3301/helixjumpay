@@ -87,6 +87,16 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/admin/configuracoes"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <DashboardLayout>
+                      <AdminSettings />
+                    </DashboardLayout>
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Admin compliance mode - view affiliate account */}
               <Route
