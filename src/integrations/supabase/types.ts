@@ -127,6 +127,7 @@ export type Database = {
       deposits: {
         Row: {
           amount_cents: number
+          bonus_cents: number
           confirmed_at: string | null
           created_at: string
           external_id: string | null
@@ -139,6 +140,7 @@ export type Database = {
         }
         Insert: {
           amount_cents: number
+          bonus_cents?: number
           confirmed_at?: string | null
           created_at?: string
           external_id?: string | null
@@ -151,6 +153,7 @@ export type Database = {
         }
         Update: {
           amount_cents?: number
+          bonus_cents?: number
           confirmed_at?: string | null
           created_at?: string
           external_id?: string | null
@@ -262,10 +265,12 @@ export type Database = {
       leads: {
         Row: {
           affiliate_id: string | null
+          balance_cents: number
           created_at: string
           id: string
           ip_address: string | null
           name: string
+          password_hash: string | null
           phone: string
           referrer: string | null
           user_agent: string | null
@@ -275,10 +280,12 @@ export type Database = {
         }
         Insert: {
           affiliate_id?: string | null
+          balance_cents?: number
           created_at?: string
           id?: string
           ip_address?: string | null
           name: string
+          password_hash?: string | null
           phone: string
           referrer?: string | null
           user_agent?: string | null
@@ -288,10 +295,12 @@ export type Database = {
         }
         Update: {
           affiliate_id?: string | null
+          balance_cents?: number
           created_at?: string
           id?: string
           ip_address?: string | null
           name?: string
+          password_hash?: string | null
           phone?: string
           referrer?: string | null
           user_agent?: string | null
@@ -305,6 +314,45 @@ export type Database = {
             columns: ["affiliate_id"]
             isOneToOne: false
             referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          lead_id: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          lead_id: string
+          token: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          lead_id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_tokens_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_tokens_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_with_deposits"
             referencedColumns: ["id"]
           },
         ]
@@ -377,7 +425,14 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      deduct_balance: {
+        Args: { p_amount: number; p_lead_id: string }
+        Returns: number
+      }
+      increment_balance: {
+        Args: { p_amount: number; p_lead_id: string }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
