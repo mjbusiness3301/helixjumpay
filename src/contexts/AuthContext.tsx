@@ -25,8 +25,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userRole, setUserRole] = useState<"admin" | "affiliate" | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const checkFrozen = async (userId: string): Promise<boolean> => {
+    const { data: affiliate } = await supabase
+      .from("affiliates")
+      .select("status")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (affiliate?.status === "frozen") return true;
+
+    const { data: admin } = await supabase
+      .from("admins")
+      .select("status")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (admin?.status === "frozen") return true;
+
+    return false;
+  };
+
   const determineRole = async (userId: string) => {
     try {
+      const frozen = await checkFrozen(userId);
+      if (frozen) {
+        await supabase.auth.signOut();
+        return null;
+      }
+
       const { data: adminData } = await supabase
         .from("admins")
         .select("id")
