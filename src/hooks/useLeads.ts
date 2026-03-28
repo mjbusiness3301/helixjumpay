@@ -21,7 +21,7 @@ export function useLeads() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("leads")
-        .select("*")
+        .select("id, name, phone, ip_address, user_agent, referrer, utm_source, utm_medium, utm_campaign, balance_cents, bonus_balance_cents, affiliate_id, created_at")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Lead[];
