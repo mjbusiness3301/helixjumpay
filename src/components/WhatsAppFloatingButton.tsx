@@ -22,7 +22,7 @@ export function WhatsAppFloatingButton() {
     },
   });
 
-  if (!link) return null;
+  if (!link || !link.trim()) return null;
 
   return (
     <a
