@@ -179,6 +179,13 @@ export type Database = {
             foreignKeyName: "deposits_lead_id_fkey"
             columns: ["lead_id"]
             isOneToOne: false
+            referencedRelation: "leads_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deposits_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
             referencedRelation: "leads_with_deposits"
             referencedColumns: ["id"]
           },
@@ -233,6 +240,13 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_sessions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_safe"
             referencedColumns: ["id"]
           },
           {
@@ -364,6 +378,13 @@ export type Database = {
             foreignKeyName: "session_tokens_lead_id_fkey"
             columns: ["lead_id"]
             isOneToOne: false
+            referencedRelation: "leads_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_tokens_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
             referencedRelation: "leads_with_deposits"
             referencedColumns: ["id"]
           },
@@ -427,6 +448,62 @@ export type Database = {
       }
     }
     Views: {
+      leads_safe: {
+        Row: {
+          affiliate_id: string | null
+          balance_cents: number | null
+          bonus_balance_cents: number | null
+          created_at: string | null
+          id: string | null
+          ip_address: string | null
+          name: string | null
+          phone: string | null
+          referrer: string | null
+          user_agent: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          affiliate_id?: string | null
+          balance_cents?: number | null
+          bonus_balance_cents?: number | null
+          created_at?: string | null
+          id?: string | null
+          ip_address?: string | null
+          name?: string | null
+          phone?: string | null
+          referrer?: string | null
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          affiliate_id?: string | null
+          balance_cents?: number | null
+          bonus_balance_cents?: number | null
+          created_at?: string | null
+          id?: string | null
+          ip_address?: string | null
+          name?: string | null
+          phone?: string | null
+          referrer?: string | null
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads_with_deposits: {
         Row: {
           confirmed_deposits: number | null
@@ -462,6 +539,11 @@ export type Database = {
       increment_balance: {
         Args: { p_amount: number; p_lead_id: string }
         Returns: number
+      }
+      lead_get_by_token: { Args: { p_token: string }; Returns: Json }
+      lead_login: {
+        Args: { p_password: string; p_phone: string }
+        Returns: Json
       }
     }
     Enums: {
