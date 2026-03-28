@@ -22,7 +22,7 @@ export default function AdminSettings() {
       .from("settings")
       .select("value")
       .eq("key", "whatsapp_group_link")
-      .single()
+      .maybeSingle()
       .then(({ data }) => {
         if (data) setWhatsappLink(data.value);
         setWhatsappInitialLoading(false);

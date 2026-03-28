@@ -10,7 +10,7 @@ export function WhatsAppFloatingButton() {
         .from("settings")
         .select("value")
         .eq("key", "whatsapp_group_link")
-        .single();
+        .maybeSingle();
       return data?.value || "";
     },
   });
