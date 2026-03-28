@@ -1,6 +1,7 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AffiliateSidebar } from "@/components/AffiliateSidebar";
 import { ComplianceBanner } from "@/components/ComplianceBanner";
+import { WhatsAppFloatingButton } from "@/components/WhatsAppFloatingButton";
 
 export function AffiliateLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -9,6 +10,7 @@ export function AffiliateLayout({ children }: { children: React.ReactNode }) {
         <AffiliateSidebar />
         <main className="flex-1 min-w-0">{children}</main>
         <ComplianceBanner />
+        <WhatsAppFloatingButton />
       </div>
     </SidebarProvider>
   );
