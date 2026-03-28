@@ -369,6 +369,24 @@ export type Database = {
           },
         ]
       }
+      settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       withdrawals: {
         Row: {
           affiliate_email: string
