@@ -29,30 +29,54 @@ const AuthPage = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: form.email,
-        password: form.password,
-      });
+      // Call rate-limited auth edge function
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const res = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/rate-limit-auth`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: form.email, password: form.password }),
+        }
+      );
 
-      if (error) {
+      const result = await res.json();
+
+      if (res.status === 429) {
         toast({
-          title: "Credenciais inválidas",
-          description: "E-mail ou senha incorretos.",
+          title: "Acesso bloqueado",
+          description: result.error,
           variant: "destructive",
         });
         setLoading(false);
         return;
       }
 
-      if (!data.user) {
-        throw new Error("Sessão inválida");
+      if (!res.ok || !result.access_token) {
+        toast({
+          title: "Credenciais inválidas",
+          description: result.error || "E-mail ou senha incorretos.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
       }
+
+      // Set the session from the edge function response
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: result.access_token,
+        refresh_token: result.refresh_token,
+      });
+
+      if (sessionError) throw sessionError;
+
+      const userId = result.user.id;
 
       // Check if user is a frozen affiliate
       const { data: affiliate } = await supabase
         .from("affiliates")
         .select("status")
-        .eq("user_id", data.user.id)
+        .eq("user_id", userId)
         .maybeSingle();
 
       if (affiliate && affiliate.status === "frozen") {
@@ -70,7 +94,7 @@ const AuthPage = () => {
       const { data: admin } = await supabase
         .from("admins")
         .select("status")
-        .eq("user_id", data.user.id)
+        .eq("user_id", userId)
         .maybeSingle();
 
       if (admin && admin.status === "frozen") {
