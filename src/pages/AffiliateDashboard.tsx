@@ -358,7 +358,7 @@ export default function AffiliateDashboard() {
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
               <XAxis dataKey="hour" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis hide />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Area type="monotone" dataKey="cadastros" stroke="hsl(var(--primary))" fill="url(#affGradCad)" strokeWidth={2} />
               <Area type="monotone" dataKey="depositos" stroke="hsl(142 71% 45%)" fill="url(#affGradDep)" strokeWidth={2} />

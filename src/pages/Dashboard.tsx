@@ -252,7 +252,7 @@ const Dashboard = () => {
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(220 14% 18%)" />
               <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} interval={2} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
+              <YAxis hide />
               <ChartTooltip content={<ChartTooltipContent />} cursor={{ stroke: "hsl(152 60% 48% / 0.2)" }} />
               <Area type="monotone" dataKey="cadastros" stroke="hsl(152 60% 48%)" strokeWidth={2} fill="url(#gradCadastros)" />
               <Area type="monotone" dataKey="depositos" stroke="hsl(38 92% 50%)" strokeWidth={2} fill="url(#gradDepositos)" />
