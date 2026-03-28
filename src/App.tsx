@@ -20,6 +20,7 @@ import AffiliateHistorico from "./pages/AffiliateHistorico.tsx";
 import AffiliatePlano from "./pages/AffiliatePlano.tsx";
 import AffiliateIndicados from "./pages/AffiliateIndicados.tsx";
 import AdminSettings from "./pages/AdminSettings.tsx";
+import AuditLogs from "./pages/AuditLogs.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -93,6 +94,16 @@ const App = () => (
                   <ProtectedRoute requiredRole="admin">
                     <DashboardLayout>
                       <AdminSettings />
+                    </DashboardLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/auditoria"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <DashboardLayout>
+                      <AuditLogs />
                     </DashboardLayout>
                   </ProtectedRoute>
                 }

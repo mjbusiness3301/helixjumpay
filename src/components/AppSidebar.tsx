@@ -9,6 +9,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Crown,
+  Shield,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { NavLink } from "@/components/NavLink";
@@ -36,6 +37,7 @@ const menuItems = [
   { title: "Saques", url: "/admin/saques", icon: ArrowDownToLine },
   { title: "Histórico", url: "/admin/historico", icon: History },
   { title: "Contas", url: "/admin/contas", icon: Wallet },
+  { title: "Auditoria", url: "/admin/auditoria", icon: Shield },
   { title: "Configurações", url: "/admin/configuracoes", icon: Settings },
 ];
 
