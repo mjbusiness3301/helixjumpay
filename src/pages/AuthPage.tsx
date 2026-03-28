@@ -48,6 +48,42 @@ const AuthPage = () => {
         throw new Error("Sessão inválida");
       }
 
+      // Check if user is a frozen affiliate
+      const { data: affiliate } = await supabase
+        .from("affiliates")
+        .select("status")
+        .eq("user_id", data.user.id)
+        .maybeSingle();
+
+      if (affiliate && affiliate.status === "frozen") {
+        await supabase.auth.signOut();
+        toast({
+          title: "Conta congelada",
+          description: "Sua conta foi congelada pelo administrador. Entre em contato com o suporte.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Check if user is a frozen admin
+      const { data: admin } = await supabase
+        .from("admins")
+        .select("status")
+        .eq("user_id", data.user.id)
+        .maybeSingle();
+
+      if (admin && admin.status === "frozen") {
+        await supabase.auth.signOut();
+        toast({
+          title: "Conta congelada",
+          description: "Sua conta foi congelada. Entre em contato com outro administrador.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       navigate("/admin");
     } catch {
       toast({
