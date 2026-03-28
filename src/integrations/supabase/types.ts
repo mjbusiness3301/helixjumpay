@@ -186,6 +186,7 @@ export type Database = {
       }
       game_sessions: {
         Row: {
+          balance_source: string | null
           bet_cents: number
           created_at: string
           earned_cents: number
@@ -199,6 +200,7 @@ export type Database = {
           target_cents: number
         }
         Insert: {
+          balance_source?: string | null
           bet_cents?: number
           created_at?: string
           earned_cents?: number
@@ -212,6 +214,7 @@ export type Database = {
           target_cents?: number
         }
         Update: {
+          balance_source?: string | null
           bet_cents?: number
           created_at?: string
           earned_cents?: number
@@ -269,10 +272,12 @@ export type Database = {
         Row: {
           affiliate_id: string | null
           balance_cents: number
+          bonus_balance_cents: number
           created_at: string
           id: string
           ip_address: string | null
           name: string
+          password: string | null
           password_hash: string | null
           phone: string
           referrer: string | null
@@ -284,10 +289,12 @@ export type Database = {
         Insert: {
           affiliate_id?: string | null
           balance_cents?: number
+          bonus_balance_cents?: number
           created_at?: string
           id?: string
           ip_address?: string | null
           name: string
+          password?: string | null
           password_hash?: string | null
           phone: string
           referrer?: string | null
@@ -299,10 +306,12 @@ export type Database = {
         Update: {
           affiliate_id?: string | null
           balance_cents?: number
+          bonus_balance_cents?: number
           created_at?: string
           id?: string
           ip_address?: string | null
           name?: string
+          password?: string | null
           password_hash?: string | null
           phone?: string
           referrer?: string | null
