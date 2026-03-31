@@ -17,6 +17,7 @@ export interface Affiliate {
   total_deposits: number;
   deposit_value: number;
   balance: number;
+  pending_balance: number;
   commission: number;
   status: "active" | "inactive" | "frozen";
   trend: number;
