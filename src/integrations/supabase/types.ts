@@ -709,6 +709,10 @@ export type Database = {
         Args: { p_password: string; p_phone: string }
         Returns: Json
       }
+      release_commission: {
+        Args: { p_affiliate_id: string; p_amount: number }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

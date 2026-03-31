@@ -167,6 +167,7 @@ export default function AffiliateDashboard() {
 
   const referralLink = `https://helixjumpay.online?ref=${affiliate.ref_code || affiliate.id}`;
   const balance = Number(affiliate.balance);
+  const pendingBalance = Number(affiliate.pending_balance || 0);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referralLink);
@@ -236,6 +237,9 @@ export default function AffiliateDashboard() {
       value: balance.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
       icon: Wallet,
       trend: null,
+      subtitle: pendingBalance > 0
+        ? `+ ${pendingBalance.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} pendente`
+        : undefined,
     },
   ];
 
@@ -327,6 +331,9 @@ export default function AffiliateDashboard() {
                   <stat.icon className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                {(stat as any).subtitle && (
+                  <p className="text-xs text-amber-400 mt-1">{(stat as any).subtitle}</p>
+                )}
                 {stat.trend !== null && (
                   <div className="flex items-center gap-1 mt-2">
                     {isPositive ? <TrendingUp className="h-3 w-3 text-primary" /> : <TrendingDown className="h-3 w-3 text-destructive" />}
