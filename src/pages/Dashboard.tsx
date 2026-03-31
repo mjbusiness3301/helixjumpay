@@ -25,6 +25,7 @@ import {
   DollarSign,
   CalendarDays,
   Loader2,
+  TrendingUp,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -86,6 +87,8 @@ const Dashboard = () => {
   const totalDepositos = stats?.totalDepositos ?? 0;
   const totalValorDepositos = stats?.totalValorDepositos ?? 0;
   const totalSaldo = stats?.totalSaldo ?? 0;
+  const lucro = stats?.lucro ?? 0;
+  const totalComissoes = stats?.totalComissoes ?? 0;
 
   const filterLabels: Record<FilterType, string> = {
     today: "Hoje",
@@ -132,6 +135,14 @@ const Dashboard = () => {
       icon: DollarSign,
       color: "text-[hsl(200_80%_55%)]",
       bgIcon: "bg-[hsl(200_80%_55%/0.1)]",
+    },
+    {
+      title: "Lucro Líquido",
+      value: `R$ ${lucro.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      icon: TrendingUp,
+      color: lucro >= 0 ? "text-primary" : "text-destructive",
+      bgIcon: lucro >= 0 ? "bg-primary/10" : "bg-destructive/10",
+      subtitle: totalComissoes > 0 ? `Comissões: R$ ${totalComissoes.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : undefined,
     },
     {
       title: "Saldo em Contas",
@@ -197,7 +208,7 @@ const Dashboard = () => {
         </Popover>
       </div>
 
-      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {statCards.map((card, i) => (
           <Card
             key={card.title}
@@ -210,6 +221,9 @@ const Dashboard = () => {
                 <p className="text-2xl font-bold tracking-tight text-foreground tabular-nums">
                   {card.value}
                 </p>
+                {(card as any).subtitle && (
+                  <p className="text-xs text-muted-foreground">{(card as any).subtitle}</p>
+                )}
               </div>
               <div className={`rounded-xl p-2.5 ${card.bgIcon}`}>
                 <card.icon className={`h-5 w-5 ${card.color}`} />

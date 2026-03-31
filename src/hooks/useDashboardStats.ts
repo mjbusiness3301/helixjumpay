@@ -52,22 +52,26 @@ export function useDashboardStats(dateFilter?: DateFilter) {
     queryFn: async () => {
       let leadsQuery = supabase.from("leads").select("id", { count: "exact" });
       let depositsQuery = supabase.from("deposits").select("amount_cents, status, created_at");
-      const affiliatesQuery = supabase.from("affiliates").select("balance");
+      const affiliatesQuery = supabase.from("affiliates").select("balance, pending_balance");
+      let commissionsQuery = supabase.from("affiliate_commissions").select("amount, created_at");
 
       if (range) {
         leadsQuery = leadsQuery.gte("created_at", range.from).lte("created_at", range.to);
         depositsQuery = depositsQuery.gte("created_at", range.from).lte("created_at", range.to);
+        commissionsQuery = commissionsQuery.gte("created_at", range.from).lte("created_at", range.to);
       }
 
-      const [leadsRes, depositsRes, affiliatesRes] = await Promise.all([
+      const [leadsRes, depositsRes, affiliatesRes, commissionsRes] = await Promise.all([
         leadsQuery,
         depositsQuery,
         affiliatesQuery,
+        commissionsQuery,
       ]);
 
       if (leadsRes.error) throw leadsRes.error;
       if (depositsRes.error) throw depositsRes.error;
       if (affiliatesRes.error) throw affiliatesRes.error;
+      if (commissionsRes.error) throw commissionsRes.error;
 
       const totalCadastros = leadsRes.count ?? 0;
 
@@ -83,7 +87,15 @@ export function useDashboardStats(dateFilter?: DateFilter) {
         0
       );
 
-      return { totalCadastros, totalDepositos, totalValorDepositos, totalSaldo };
+      const totalComissoes = commissionsRes.data.reduce(
+        (sum, c) => sum + Number(c.amount),
+        0
+      ) / 100;
+
+      // Lucro = depósitos confirmados - comissões geradas (em centavos convertidos para reais)
+      const lucro = totalValorDepositos - totalComissoes;
+
+      return { totalCadastros, totalDepositos, totalValorDepositos, totalSaldo, totalComissoes, lucro };
     },
   });
 }
