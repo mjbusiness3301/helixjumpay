@@ -132,7 +132,7 @@ export default function AdminSettings() {
         </CardContent>
       </Card>
 
-      <Card className="bg-card/80 backdrop-blur-sm border-border max-w-md">
+      <Card className="bg-card/80 backdrop-blur-sm border-border">
         <CardContent className="p-5 space-y-5">
           <div className="flex items-center gap-2 mb-1">
             <Percent className="h-4 w-4 text-primary" />
