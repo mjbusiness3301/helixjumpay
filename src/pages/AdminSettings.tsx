@@ -187,11 +187,15 @@ export default function AdminSettings() {
             onClick={async () => {
               setGatewayFeeLoading(true);
               try {
+                const now = new Date().toISOString();
                 const { error } = await supabase
                   .from("settings")
-                  .upsert({ key: "gateway_fee_percent", value: gatewayFee || "0", updated_at: new Date().toISOString() });
+                  .upsert([
+                    { key: "gateway_fee_percent", value: gatewayFee || "0", updated_at: now },
+                    { key: "gateway_fee_fixed", value: gatewayFeeFixed || "0", updated_at: now },
+                  ]);
                 if (error) throw error;
-                toast({ title: "Taxa do gateway salva com sucesso!" });
+                toast({ title: "Taxas do gateway salvas com sucesso!" });
               } catch (err: any) {
                 toast({ title: "Erro ao salvar", description: err.message, variant: "destructive" });
               } finally {
