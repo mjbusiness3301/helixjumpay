@@ -18,6 +18,7 @@ export default function AdminSettings() {
   const [whatsappInitialLoading, setWhatsappInitialLoading] = useState(true);
 
   const [gatewayFee, setGatewayFee] = useState("");
+  const [gatewayFeeFixed, setGatewayFeeFixed] = useState("");
   const [gatewayFeeLoading, setGatewayFeeLoading] = useState(false);
 
   useEffect(() => {
