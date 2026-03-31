@@ -52,7 +52,7 @@ export function useDashboardStats(dateFilter?: DateFilter) {
     queryFn: async () => {
       let leadsQuery = supabase.from("leads").select("id", { count: "exact" });
       let depositsQuery = supabase.from("deposits").select("amount_cents, status, created_at");
-      const affiliatesQuery = supabase.from("affiliates").select("balance, pending_balance");
+      const leadsBalanceQuery = supabase.from("leads").select("balance_cents");
       let commissionsQuery = supabase.from("affiliate_commissions").select("amount, created_at");
 
       if (range) {
