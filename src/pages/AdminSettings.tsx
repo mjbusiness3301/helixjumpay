@@ -18,17 +18,19 @@ export default function AdminSettings() {
   const [whatsappInitialLoading, setWhatsappInitialLoading] = useState(true);
 
   const [gatewayFee, setGatewayFee] = useState("");
+  const [gatewayFeeFixed, setGatewayFeeFixed] = useState("");
   const [gatewayFeeLoading, setGatewayFeeLoading] = useState(false);
 
   useEffect(() => {
     supabase
       .from("settings")
       .select("key, value")
-      .in("key", ["whatsapp_group_link", "gateway_fee_percent"])
+      .in("key", ["whatsapp_group_link", "gateway_fee_percent", "gateway_fee_fixed"])
       .then(({ data }) => {
         for (const row of data ?? []) {
           if (row.key === "whatsapp_group_link") setWhatsappLink(row.value);
           if (row.key === "gateway_fee_percent") setGatewayFee(row.value);
+          if (row.key === "gateway_fee_fixed") setGatewayFeeFixed(row.value);
         }
         setWhatsappInitialLoading(false);
       });
@@ -135,27 +137,49 @@ export default function AdminSettings() {
             <Percent className="h-4 w-4 text-primary" />
             <h3 className="text-sm font-semibold text-foreground">Taxa do Gateway de Pagamento</h3>
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="gateway-fee">Taxa por transação (%)</Label>
-            <div className="relative">
-              <Input
-                id="gateway-fee"
-                type="number"
-                min="0"
-                max="100"
-                step="0.01"
-                placeholder="Ex: 3.99"
-                value={gatewayFee}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  if (v === "" || (Number(v) >= 0 && Number(v) <= 100)) setGatewayFee(v);
-                }}
-                disabled={whatsappInitialLoading}
-                className="pr-8"
-              />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="gateway-fee">Taxa percentual (%)</Label>
+              <div className="relative">
+                <Input
+                  id="gateway-fee"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  placeholder="Ex: 3.99"
+                  value={gatewayFee}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v === "" || (Number(v) >= 0 && Number(v) <= 100)) setGatewayFee(v);
+                  }}
+                  disabled={whatsappInitialLoading}
+                  className="pr-8"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">Percentual cobrado pelo gateway (Master Pagamentos) sobre cada depósito. Será descontado no cálculo de lucro líquido.</p>
+            <div className="space-y-1.5">
+              <Label htmlFor="gateway-fee-fixed">Taxa fixa por transação (R$)</Label>
+              <div className="relative">
+                <Input
+                  id="gateway-fee-fixed"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Ex: 1.50"
+                  value={gatewayFeeFixed}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v === "" || Number(v) >= 0) setGatewayFeeFixed(v);
+                  }}
+                  disabled={whatsappInitialLoading}
+                  className="pl-10"
+                />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">R$</span>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">Percentual + valor fixo cobrados pelo gateway sobre cada depósito. Serão descontados no cálculo de lucro líquido.</p>
           </div>
           <Button
             className="w-full"
@@ -163,11 +187,15 @@ export default function AdminSettings() {
             onClick={async () => {
               setGatewayFeeLoading(true);
               try {
+                const now = new Date().toISOString();
                 const { error } = await supabase
                   .from("settings")
-                  .upsert({ key: "gateway_fee_percent", value: gatewayFee || "0", updated_at: new Date().toISOString() });
+                  .upsert([
+                    { key: "gateway_fee_percent", value: gatewayFee || "0", updated_at: now },
+                    { key: "gateway_fee_fixed", value: gatewayFeeFixed || "0", updated_at: now },
+                  ]);
                 if (error) throw error;
-                toast({ title: "Taxa do gateway salva com sucesso!" });
+                toast({ title: "Taxas do gateway salvas com sucesso!" });
               } catch (err: any) {
                 toast({ title: "Erro ao salvar", description: err.message, variant: "destructive" });
               } finally {

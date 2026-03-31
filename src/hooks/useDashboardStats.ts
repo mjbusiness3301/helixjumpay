@@ -54,7 +54,7 @@ export function useDashboardStats(dateFilter?: DateFilter) {
       let depositsQuery = supabase.from("deposits").select("amount_cents, status, created_at");
       const leadsBalanceQuery = supabase.from("leads").select("balance_cents");
       let commissionsQuery = supabase.from("affiliate_commissions").select("amount, created_at");
-      const gatewayFeeQuery = supabase.from("settings").select("value").eq("key", "gateway_fee_percent").maybeSingle();
+      const gatewayFeeQuery = supabase.from("settings").select("key, value").in("key", ["gateway_fee_percent", "gateway_fee_fixed"]);
 
       if (range) {
         leadsQuery = leadsQuery.gte("created_at", range.from).lte("created_at", range.to);
@@ -94,8 +94,13 @@ export function useDashboardStats(dateFilter?: DateFilter) {
         0
       ) / 100;
 
-      const gatewayFeePercent = Number(gatewayFeeRes.data?.value || "0");
-      const totalTaxaGateway = totalValorDepositos * (gatewayFeePercent / 100);
+      const gatewaySettings: Record<string, string> = {};
+      for (const row of gatewayFeeRes.data ?? []) {
+        gatewaySettings[row.key] = row.value;
+      }
+      const gatewayFeePercent = Number(gatewaySettings["gateway_fee_percent"] || "0");
+      const gatewayFeeFixed = Number(gatewaySettings["gateway_fee_fixed"] || "0");
+      const totalTaxaGateway = totalValorDepositos * (gatewayFeePercent / 100) + gatewayFeeFixed * totalDepositos;
 
       // Lucro = depósitos - comissões - taxa gateway
       const lucro = totalValorDepositos - totalComissoes - totalTaxaGateway;
