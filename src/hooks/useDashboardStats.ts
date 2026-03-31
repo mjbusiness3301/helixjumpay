@@ -94,8 +94,13 @@ export function useDashboardStats(dateFilter?: DateFilter) {
         0
       ) / 100;
 
-      const gatewayFeePercent = Number(gatewayFeeRes.data?.value || "0");
-      const totalTaxaGateway = totalValorDepositos * (gatewayFeePercent / 100);
+      const gatewaySettings: Record<string, string> = {};
+      for (const row of gatewayFeeRes.data ?? []) {
+        gatewaySettings[row.key] = row.value;
+      }
+      const gatewayFeePercent = Number(gatewaySettings["gateway_fee_percent"] || "0");
+      const gatewayFeeFixed = Number(gatewaySettings["gateway_fee_fixed"] || "0");
+      const totalTaxaGateway = totalValorDepositos * (gatewayFeePercent / 100) + gatewayFeeFixed * totalDepositos;
 
       // Lucro = depósitos - comissões - taxa gateway
       const lucro = totalValorDepositos - totalComissoes - totalTaxaGateway;
