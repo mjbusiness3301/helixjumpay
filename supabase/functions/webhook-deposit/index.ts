@@ -25,7 +25,8 @@ Deno.serve(async (req) => {
 
     if (body.event && body.data) {
       // Master Pagamentos / gateway format
-      externalId = body.data?.id || body.data?.external_id || body.data?.transaction_id || null;
+      // Priority: transaction_id matches what we store as external_id in deposits table
+      externalId = body.data?.transaction_id || body.data?.id || body.data?.external_id || null;
 
       const eventMap: Record<string, string> = {
         "charge.paid": "confirmed",
