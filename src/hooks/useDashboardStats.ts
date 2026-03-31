@@ -54,7 +54,7 @@ export function useDashboardStats(dateFilter?: DateFilter) {
       let depositsQuery = supabase.from("deposits").select("amount_cents, status, created_at");
       const leadsBalanceQuery = supabase.from("leads").select("balance_cents");
       let commissionsQuery = supabase.from("affiliate_commissions").select("amount, created_at");
-      const gatewayFeeQuery = supabase.from("settings").select("value").eq("key", "gateway_fee_percent").maybeSingle();
+      const gatewayFeeQuery = supabase.from("settings").select("key, value").in("key", ["gateway_fee_percent", "gateway_fee_fixed"]);
 
       if (range) {
         leadsQuery = leadsQuery.gte("created_at", range.from).lte("created_at", range.to);
