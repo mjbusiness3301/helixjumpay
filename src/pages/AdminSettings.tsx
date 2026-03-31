@@ -209,6 +209,7 @@ export default function AdminSettings() {
           </Button>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
