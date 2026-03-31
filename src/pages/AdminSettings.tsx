@@ -77,7 +77,12 @@ export default function AdminSettings() {
   };
 
   return (
-    <div className="px-4 py-8 sm:px-6 lg:px-8 space-y-6 animate-reveal-up">
+    <div className="px-4 py-8 sm:px-6 lg:px-8 animate-reveal-up">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-foreground">Configurações</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Gerencie sua conta de administrador</p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Configurações</h1>
         <p className="text-sm text-muted-foreground mt-0.5">Gerencie sua conta de administrador</p>
