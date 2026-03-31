@@ -83,10 +83,6 @@ export default function AdminSettings() {
         <p className="text-sm text-muted-foreground mt-0.5">Gerencie sua conta de administrador</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Configurações</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Gerencie sua conta de administrador</p>
-      </div>
 
       <Card className="bg-card/80 backdrop-blur-sm border-border max-w-md">
         <CardContent className="p-5 space-y-5">
