@@ -137,6 +137,14 @@ const Dashboard = () => {
       bgIcon: "bg-[hsl(200_80%_55%/0.1)]",
     },
     {
+      title: "Lucro Líquido",
+      value: `R$ ${lucro.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      icon: TrendingUp,
+      color: lucro >= 0 ? "text-primary" : "text-destructive",
+      bgIcon: lucro >= 0 ? "bg-primary/10" : "bg-destructive/10",
+      subtitle: totalComissoes > 0 ? `Comissões: R$ ${totalComissoes.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : undefined,
+    },
+    {
       title: "Saldo em Contas",
       value: `R$ ${totalSaldo.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
       icon: DollarSign,
