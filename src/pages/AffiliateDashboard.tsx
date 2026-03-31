@@ -331,6 +331,9 @@ export default function AffiliateDashboard() {
                   <stat.icon className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                {(stat as any).subtitle && (
+                  <p className="text-xs text-amber-400 mt-1">{(stat as any).subtitle}</p>
+                )}
                 {stat.trend !== null && (
                   <div className="flex items-center gap-1 mt-2">
                     {isPositive ? <TrendingUp className="h-3 w-3 text-primary" /> : <TrendingDown className="h-3 w-3 text-destructive" />}
