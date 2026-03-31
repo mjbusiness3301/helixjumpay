@@ -221,6 +221,9 @@ const Dashboard = () => {
                 <p className="text-2xl font-bold tracking-tight text-foreground tabular-nums">
                   {card.value}
                 </p>
+                {(card as any).subtitle && (
+                  <p className="text-xs text-muted-foreground">{(card as any).subtitle}</p>
+                )}
               </div>
               <div className={`rounded-xl p-2.5 ${card.bgIcon}`}>
                 <card.icon className={`h-5 w-5 ${card.color}`} />
