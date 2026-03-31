@@ -143,7 +143,10 @@ const Dashboard = () => {
       icon: TrendingUp,
       color: lucro >= 0 ? "text-primary" : "text-destructive",
       bgIcon: lucro >= 0 ? "bg-primary/10" : "bg-destructive/10",
-      subtitle: totalComissoes > 0 ? `Comissões: R$ ${totalComissoes.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : undefined,
+      subtitle: [
+        totalComissoes > 0 ? `Comissões: -R$ ${totalComissoes.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : null,
+        totalTaxaGateway > 0 ? `Gateway: -R$ ${totalTaxaGateway.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : null,
+      ].filter(Boolean).join(" · ") || undefined,
     },
     {
       title: "Saldo em Contas",
