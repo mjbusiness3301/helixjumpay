@@ -237,6 +237,9 @@ export default function AffiliateDashboard() {
       value: balance.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
       icon: Wallet,
       trend: null,
+      subtitle: pendingBalance > 0
+        ? `+ ${pendingBalance.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} pendente`
+        : undefined,
     },
   ];
 
