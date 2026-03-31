@@ -1,0 +1,1 @@
+UPDATE leads SET affiliate_id = '25785174-3dfa-4436-bd6e-6063998d25f0' WHERE id = 'ea44b161-a8d7-4409-9f25-4c9710a3c1e4' AND affiliate_id IS NULL;
