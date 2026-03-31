@@ -25,11 +25,12 @@ export default function AdminSettings() {
     supabase
       .from("settings")
       .select("key, value")
-      .in("key", ["whatsapp_group_link", "gateway_fee_percent"])
+      .in("key", ["whatsapp_group_link", "gateway_fee_percent", "gateway_fee_fixed"])
       .then(({ data }) => {
         for (const row of data ?? []) {
           if (row.key === "whatsapp_group_link") setWhatsappLink(row.value);
           if (row.key === "gateway_fee_percent") setGatewayFee(row.value);
+          if (row.key === "gateway_fee_fixed") setGatewayFeeFixed(row.value);
         }
         setWhatsappInitialLoading(false);
       });
