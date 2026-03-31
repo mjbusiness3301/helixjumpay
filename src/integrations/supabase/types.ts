@@ -73,6 +73,61 @@ export type Database = {
         }
         Relationships: []
       }
+      affiliate_commissions: {
+        Row: {
+          affiliate_id: string
+          amount: number
+          available_at: string
+          created_at: string
+          deposit_id: string | null
+          id: string
+          released_at: string | null
+          status: string
+        }
+        Insert: {
+          affiliate_id: string
+          amount: number
+          available_at?: string
+          created_at?: string
+          deposit_id?: string | null
+          id?: string
+          released_at?: string | null
+          status?: string
+        }
+        Update: {
+          affiliate_id?: string
+          amount?: number
+          available_at?: string
+          created_at?: string
+          deposit_id?: string | null
+          id?: string
+          released_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_commissions_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_commissions_deposit_id_fkey"
+            columns: ["deposit_id"]
+            isOneToOne: false
+            referencedRelation: "deposits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_commissions_deposit_id_fkey"
+            columns: ["deposit_id"]
+            isOneToOne: false
+            referencedRelation: "recent_deposits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       affiliates: {
         Row: {
           balance: number
@@ -83,6 +138,7 @@ export type Database = {
           email: string
           id: string
           name: string
+          pending_balance: number
           phone: string | null
           ref_code: string | null
           status: string
@@ -100,6 +156,7 @@ export type Database = {
           email: string
           id?: string
           name: string
+          pending_balance?: number
           phone?: string | null
           ref_code?: string | null
           status?: string
@@ -117,6 +174,7 @@ export type Database = {
           email?: string
           id?: string
           name?: string
+          pending_balance?: number
           phone?: string | null
           ref_code?: string | null
           status?: string
