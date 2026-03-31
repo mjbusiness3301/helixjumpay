@@ -89,6 +89,7 @@ const Dashboard = () => {
   const totalSaldo = stats?.totalSaldo ?? 0;
   const lucro = stats?.lucro ?? 0;
   const totalComissoes = stats?.totalComissoes ?? 0;
+  const totalTaxaGateway = stats?.totalTaxaGateway ?? 0;
 
   const filterLabels: Record<FilterType, string> = {
     today: "Hoje",
