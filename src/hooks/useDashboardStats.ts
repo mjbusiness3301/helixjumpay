@@ -62,11 +62,12 @@ export function useDashboardStats(dateFilter?: DateFilter) {
         commissionsQuery = commissionsQuery.gte("created_at", range.from).lte("created_at", range.to);
       }
 
-      const [leadsRes, depositsRes, leadsBalanceRes, commissionsRes] = await Promise.all([
+      const [leadsRes, depositsRes, leadsBalanceRes, commissionsRes, gatewayFeeRes] = await Promise.all([
         leadsQuery,
         depositsQuery,
         leadsBalanceQuery,
         commissionsQuery,
+        gatewayFeeQuery,
       ]);
 
       if (leadsRes.error) throw leadsRes.error;
