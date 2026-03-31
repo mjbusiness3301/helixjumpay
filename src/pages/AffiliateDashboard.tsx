@@ -167,6 +167,7 @@ export default function AffiliateDashboard() {
 
   const referralLink = `https://helixjumpay.online?ref=${affiliate.ref_code || affiliate.id}`;
   const balance = Number(affiliate.balance);
+  const pendingBalance = Number(affiliate.pending_balance || 0);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referralLink);
