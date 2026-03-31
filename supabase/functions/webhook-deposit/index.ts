@@ -15,20 +15,59 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { external_id, status } = body;
+    console.log("Webhook received:", JSON.stringify(body));
 
-    if (!external_id || typeof external_id !== "string") {
-      return new Response(JSON.stringify({ error: "external_id é obrigatório" }), {
+    // Support multiple payload formats:
+    // Format 1 (Master Pagamentos): { event: "charge.paid", data: { id, ... } }
+    // Format 2 (generic): { external_id, status }
+    let externalId: string | null = null;
+    let depositStatus: string | null = null;
+
+    if (body.event && body.data) {
+      // Master Pagamentos / gateway format
+      externalId = body.data?.id || body.data?.external_id || body.data?.transaction_id || null;
+
+      const eventMap: Record<string, string> = {
+        "charge.paid": "confirmed",
+        "charge.created": "pending",
+        "charge.failed": "failed",
+        "charge.refunded": "rejected",
+        "charge.chargeback": "rejected",
+        "CHARGE-APPROVED": "confirmed",
+        "CHARGE-PENDING": "pending",
+        "CHARGE-REFUND": "rejected",
+        "CHARGE-NOT_AUTHORIZED": "failed",
+      };
+
+      depositStatus = eventMap[body.event] || null;
+
+      if (!depositStatus) {
+        // Event not relevant, acknowledge
+        return new Response(JSON.stringify({ ok: true, message: "Event ignored", event: body.event }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    } else {
+      // Generic format
+      externalId = body.external_id || null;
+      if (body.status && ["confirmed", "rejected", "failed"].includes(body.status)) {
+        depositStatus = body.status;
+      }
+    }
+
+    if (!externalId) {
+      return new Response(JSON.stringify({ error: "external_id não encontrado no payload" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    if (!status || !["confirmed", "rejected", "failed"].includes(status)) {
-      return new Response(
-        JSON.stringify({ error: "status deve ser: confirmed, rejected ou failed" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (!depositStatus) {
+      return new Response(JSON.stringify({ error: "Status não reconhecido" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const supabase = createClient(
@@ -36,30 +75,31 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Find the deposit by external_id
+    // Find deposit by external_id
     const { data: deposit, error: findError } = await supabase
       .from("deposits")
       .select("id, lead_id, amount_cents, status")
-      .eq("external_id", external_id)
+      .eq("external_id", externalId)
       .single();
 
     if (findError || !deposit) {
+      console.log("Deposit not found for external_id:", externalId);
       return new Response(
-        JSON.stringify({ error: "Depósito não encontrado", external_id }),
+        JSON.stringify({ error: "Depósito não encontrado", external_id: externalId }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     if (deposit.status === "confirmed") {
       return new Response(
-        JSON.stringify({ message: "Depósito já confirmado", deposit_id: deposit.id }),
+        JSON.stringify({ ok: true, message: "Depósito já confirmado", deposit_id: deposit.id }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Update deposit status
-    const updateData: Record<string, unknown> = { status };
-    if (status === "confirmed") {
+    // Update deposit
+    const updateData: Record<string, unknown> = { status: depositStatus };
+    if (depositStatus === "confirmed") {
       updateData.confirmed_at = new Date().toISOString();
     }
 
@@ -69,22 +109,22 @@ Deno.serve(async (req) => {
       .eq("id", deposit.id);
 
     if (updateError) {
-      console.error("Erro ao atualizar depósito:", updateError);
+      console.error("Error updating deposit:", updateError);
       return new Response(
         JSON.stringify({ error: "Erro ao atualizar depósito" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Credit lead balance if confirmed
-    if (status === "confirmed" && deposit.lead_id) {
+    // Credit balance if confirmed
+    if (depositStatus === "confirmed" && deposit.lead_id) {
       const { error: balanceError } = await supabase.rpc("increment_balance", {
         p_lead_id: deposit.lead_id,
         p_amount: deposit.amount_cents,
       });
 
       if (balanceError) {
-        console.error("Erro ao creditar saldo:", balanceError);
+        console.error("Error crediting balance:", balanceError);
         return new Response(
           JSON.stringify({ error: "Depósito confirmado mas erro ao creditar saldo" }),
           { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -92,12 +132,14 @@ Deno.serve(async (req) => {
       }
     }
 
+    console.log(`Deposit ${deposit.id} updated to ${depositStatus}`);
+
     return new Response(
       JSON.stringify({
-        success: true,
+        ok: true,
         deposit_id: deposit.id,
-        status,
-        credited: status === "confirmed" && !!deposit.lead_id,
+        status: depositStatus,
+        credited: depositStatus === "confirmed" && !!deposit.lead_id,
         amount_cents: deposit.amount_cents,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
