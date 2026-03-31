@@ -25,6 +25,7 @@ import {
   DollarSign,
   CalendarDays,
   Loader2,
+  TrendingUp,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
