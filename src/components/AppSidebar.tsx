@@ -33,9 +33,9 @@ import { Button } from "@/components/ui/button";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-  { title: "Afiliados", url: "/admin/afiliados", icon: Users },
-  { title: "Saques", url: "/admin/saques", icon: ArrowDownToLine },
   { title: "Histórico de Transações", url: "/admin/historico", icon: History },
+  { title: "Saques", url: "/admin/saques", icon: ArrowDownToLine },
+  { title: "Afiliados", url: "/admin/afiliados", icon: Users },
   { title: "Contas", url: "/admin/contas", icon: Wallet },
   { title: "Auditoria", url: "/admin/auditoria", icon: Shield },
   { title: "Configurações", url: "/admin/configuracoes", icon: Settings },
