@@ -94,10 +94,13 @@ export function useDashboardStats(dateFilter?: DateFilter) {
         0
       ) / 100;
 
-      // Lucro = depósitos confirmados - comissões geradas (em centavos convertidos para reais)
-      const lucro = totalValorDepositos - totalComissoes;
+      const gatewayFeePercent = Number(gatewayFeeRes.data?.value || "0");
+      const totalTaxaGateway = totalValorDepositos * (gatewayFeePercent / 100);
 
-      return { totalCadastros, totalDepositos, totalValorDepositos, totalSaldo, totalComissoes, lucro };
+      // Lucro = depósitos - comissões - taxa gateway
+      const lucro = totalValorDepositos - totalComissoes - totalTaxaGateway;
+
+      return { totalCadastros, totalDepositos, totalValorDepositos, totalSaldo, totalComissoes, lucro, totalTaxaGateway };
     },
   });
 }
