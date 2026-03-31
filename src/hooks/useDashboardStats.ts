@@ -54,6 +54,7 @@ export function useDashboardStats(dateFilter?: DateFilter) {
       let depositsQuery = supabase.from("deposits").select("amount_cents, status, created_at");
       const leadsBalanceQuery = supabase.from("leads").select("balance_cents");
       let commissionsQuery = supabase.from("affiliate_commissions").select("amount, created_at");
+      const gatewayFeeQuery = supabase.from("settings").select("value").eq("key", "gateway_fee_percent").maybeSingle();
 
       if (range) {
         leadsQuery = leadsQuery.gte("created_at", range.from).lte("created_at", range.to);
@@ -61,11 +62,12 @@ export function useDashboardStats(dateFilter?: DateFilter) {
         commissionsQuery = commissionsQuery.gte("created_at", range.from).lte("created_at", range.to);
       }
 
-      const [leadsRes, depositsRes, leadsBalanceRes, commissionsRes] = await Promise.all([
+      const [leadsRes, depositsRes, leadsBalanceRes, commissionsRes, gatewayFeeRes] = await Promise.all([
         leadsQuery,
         depositsQuery,
         leadsBalanceQuery,
         commissionsQuery,
+        gatewayFeeQuery,
       ]);
 
       if (leadsRes.error) throw leadsRes.error;
@@ -92,10 +94,13 @@ export function useDashboardStats(dateFilter?: DateFilter) {
         0
       ) / 100;
 
-      // Lucro = depósitos confirmados - comissões geradas (em centavos convertidos para reais)
-      const lucro = totalValorDepositos - totalComissoes;
+      const gatewayFeePercent = Number(gatewayFeeRes.data?.value || "0");
+      const totalTaxaGateway = totalValorDepositos * (gatewayFeePercent / 100);
 
-      return { totalCadastros, totalDepositos, totalValorDepositos, totalSaldo, totalComissoes, lucro };
+      // Lucro = depósitos - comissões - taxa gateway
+      const lucro = totalValorDepositos - totalComissoes - totalTaxaGateway;
+
+      return { totalCadastros, totalDepositos, totalValorDepositos, totalSaldo, totalComissoes, lucro, totalTaxaGateway };
     },
   });
 }
