@@ -17,6 +17,9 @@ export default function AdminSettings() {
   const [whatsappLoading, setWhatsappLoading] = useState(false);
   const [whatsappInitialLoading, setWhatsappInitialLoading] = useState(true);
 
+  const [gatewayFee, setGatewayFee] = useState("");
+  const [gatewayFeeLoading, setGatewayFeeLoading] = useState(false);
+
   useEffect(() => {
     supabase
       .from("settings")
