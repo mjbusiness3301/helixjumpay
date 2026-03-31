@@ -61,16 +61,16 @@ export function useDashboardStats(dateFilter?: DateFilter) {
         commissionsQuery = commissionsQuery.gte("created_at", range.from).lte("created_at", range.to);
       }
 
-      const [leadsRes, depositsRes, affiliatesRes, commissionsRes] = await Promise.all([
+      const [leadsRes, depositsRes, leadsBalanceRes, commissionsRes] = await Promise.all([
         leadsQuery,
         depositsQuery,
-        affiliatesQuery,
+        leadsBalanceQuery,
         commissionsQuery,
       ]);
 
       if (leadsRes.error) throw leadsRes.error;
       if (depositsRes.error) throw depositsRes.error;
-      if (affiliatesRes.error) throw affiliatesRes.error;
+      if (leadsBalanceRes.error) throw leadsBalanceRes.error;
       if (commissionsRes.error) throw commissionsRes.error;
 
       const totalCadastros = leadsRes.count ?? 0;
@@ -82,10 +82,10 @@ export function useDashboardStats(dateFilter?: DateFilter) {
         0
       ) / 100;
 
-      const totalSaldo = affiliatesRes.data.reduce(
-        (sum, a) => sum + Number(a.balance),
+      const totalSaldo = leadsBalanceRes.data.reduce(
+        (sum, l) => sum + Number(l.balance_cents),
         0
-      );
+      ) / 100;
 
       const totalComissoes = commissionsRes.data.reduce(
         (sum, c) => sum + Number(c.amount),
