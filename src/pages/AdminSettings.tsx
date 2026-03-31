@@ -84,7 +84,7 @@ export default function AdminSettings() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-      <Card className="bg-card/80 backdrop-blur-sm border-border max-w-md">
+      <Card className="bg-card/80 backdrop-blur-sm border-border">
         <CardContent className="p-5 space-y-5">
           <div className="flex items-center gap-2 mb-1">
             <Lock className="h-4 w-4 text-primary" />
