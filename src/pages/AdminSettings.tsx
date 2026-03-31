@@ -128,6 +128,58 @@ export default function AdminSettings() {
           </Button>
         </CardContent>
       </Card>
+
+      <Card className="bg-card/80 backdrop-blur-sm border-border max-w-md">
+        <CardContent className="p-5 space-y-5">
+          <div className="flex items-center gap-2 mb-1">
+            <Percent className="h-4 w-4 text-primary" />
+            <h3 className="text-sm font-semibold text-foreground">Taxa do Gateway de Pagamento</h3>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="gateway-fee">Taxa por transação (%)</Label>
+            <div className="relative">
+              <Input
+                id="gateway-fee"
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                placeholder="Ex: 3.99"
+                value={gatewayFee}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === "" || (Number(v) >= 0 && Number(v) <= 100)) setGatewayFee(v);
+                }}
+                disabled={whatsappInitialLoading}
+                className="pr-8"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
+            </div>
+            <p className="text-xs text-muted-foreground">Percentual cobrado pelo gateway (Master Pagamentos) sobre cada depósito. Será descontado no cálculo de lucro líquido.</p>
+          </div>
+          <Button
+            className="w-full"
+            disabled={gatewayFeeLoading || whatsappInitialLoading}
+            onClick={async () => {
+              setGatewayFeeLoading(true);
+              try {
+                const { error } = await supabase
+                  .from("settings")
+                  .upsert({ key: "gateway_fee_percent", value: gatewayFee || "0", updated_at: new Date().toISOString() });
+                if (error) throw error;
+                toast({ title: "Taxa do gateway salva com sucesso!" });
+              } catch (err: any) {
+                toast({ title: "Erro ao salvar", description: err.message, variant: "destructive" });
+              } finally {
+                setGatewayFeeLoading(false);
+              }
+            }}
+          >
+            {gatewayFeeLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+            {gatewayFeeLoading ? "Salvando..." : "Salvar Taxa"}
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }
