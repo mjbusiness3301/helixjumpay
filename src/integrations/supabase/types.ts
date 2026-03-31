@@ -318,6 +318,55 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_withdrawals: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          id: string
+          lead_id: string
+          pix_key: string
+          status: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          id?: string
+          lead_id: string
+          pix_key: string
+          status?: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          id?: string
+          lead_id?: string
+          pix_key?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_withdrawals_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_withdrawals_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_withdrawals_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_with_deposits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           affiliate_id: string | null
