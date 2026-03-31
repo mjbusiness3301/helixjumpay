@@ -23,11 +23,13 @@ export default function AdminSettings() {
   useEffect(() => {
     supabase
       .from("settings")
-      .select("value")
-      .eq("key", "whatsapp_group_link")
-      .maybeSingle()
+      .select("key, value")
+      .in("key", ["whatsapp_group_link", "gateway_fee_percent"])
       .then(({ data }) => {
-        if (data) setWhatsappLink(data.value);
+        for (const row of data ?? []) {
+          if (row.key === "whatsapp_group_link") setWhatsappLink(row.value);
+          if (row.key === "gateway_fee_percent") setGatewayFee(row.value);
+        }
         setWhatsappInitialLoading(false);
       });
   }, []);
