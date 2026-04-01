@@ -334,10 +334,10 @@ export default function Contas() {
     );
 
     try {
-      const { error } = await supabase
-        .from("leads")
-        .update({ is_influencer: newValue })
-        .eq("id", account.id);
+      const { error } = await supabase.rpc("set_lead_influencer", {
+        p_lead_id: account.id,
+        p_is_influencer: newValue,
+      });
       if (error) throw error;
       toast.success(
         newValue
