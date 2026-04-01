@@ -41,12 +41,14 @@ function AccountRowComponent({
   onAddBalance,
   onRemoveBalance,
   onToggleInfluencer,
+  togglingId,
 }: {
   account: AccountRow;
   onMakeAdmin: (account: AccountRow) => void;
   onAddBalance: (account: AccountRow) => void;
   onRemoveBalance: (account: AccountRow) => void;
   onToggleInfluencer: (account: AccountRow) => void;
+  togglingId: string | null;
 }) {
   const cfg = roleConfig[account.role];
   const RoleIcon = cfg.icon;
@@ -93,11 +95,12 @@ function AccountRowComponent({
           )}
           {account.role === "player" && (
             <>
-              <div className="flex items-center gap-1.5" title={account.isInfluencer ? "Influencer (clique para remover)" : "Marcar como Influencer"}>
-                <Star className={`h-3.5 w-3.5 ${account.isInfluencer ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground"}`} />
+              <div className="flex items-center gap-1.5" title={account.isInfluencer ? "Influencer ativo — clique para remover" : "Marcar como Influencer"}>
+                <Star className={`h-3.5 w-3.5 transition-colors ${account.isInfluencer ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground"}`} />
                 <Switch
                   checked={!!account.isInfluencer}
                   onCheckedChange={() => onToggleInfluencer(account)}
+                  disabled={togglingId === account.id}
                   className="scale-75"
                 />
               </div>
@@ -133,12 +136,14 @@ function AccountTable({
   onAddBalance,
   onRemoveBalance,
   onToggleInfluencer,
+  togglingId,
 }: {
   accounts: AccountRow[];
   onMakeAdmin: (account: AccountRow) => void;
   onAddBalance: (account: AccountRow) => void;
   onRemoveBalance: (account: AccountRow) => void;
   onToggleInfluencer: (account: AccountRow) => void;
+  togglingId: string | null;
 }) {
   if (accounts.length === 0) {
     return (
@@ -169,6 +174,7 @@ function AccountTable({
               onAddBalance={onAddBalance}
               onRemoveBalance={onRemoveBalance}
               onToggleInfluencer={onToggleInfluencer}
+              togglingId={togglingId}
             />
           ))}
         </tbody>
@@ -319,9 +325,15 @@ export default function Contas() {
   };
 
   const handleToggleInfluencer = async (account: AccountRow) => {
+    const newValue = !account.isInfluencer;
     setTogglingInfluencer(account.id);
+
+    // Optimistic update: atualiza o cache local imediatamente
+    queryClient.setQueryData(["leads"], (old: any[]) =>
+      old?.map((l) => l.id === account.id ? { ...l, is_influencer: newValue } : l) ?? old
+    );
+
     try {
-      const newValue = !account.isInfluencer;
       const { error } = await supabase
         .from("leads")
         .update({ is_influencer: newValue })
@@ -329,14 +341,18 @@ export default function Contas() {
       if (error) throw error;
       toast.success(
         newValue
-          ? `${account.name} agora é Influencer (modo fácil)`
+          ? `${account.name} agora é Influencer (modo fácil) ⭐`
           : `${account.name} voltou ao modo normal`
       );
-      queryClient.invalidateQueries({ queryKey: ["leads"] });
     } catch (err: any) {
+      // Reverter em caso de erro
+      queryClient.setQueryData(["leads"], (old: any[]) =>
+        old?.map((l) => l.id === account.id ? { ...l, is_influencer: !newValue } : l) ?? old
+      );
       toast.error(err.message || "Erro ao atualizar status de influencer");
     } finally {
       setTogglingInfluencer(null);
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
     }
   };
 
@@ -385,6 +401,7 @@ export default function Contas() {
               onAddBalance={setBalanceTarget}
               onRemoveBalance={setRemoveBalanceTarget}
               onToggleInfluencer={handleToggleInfluencer}
+              togglingId={togglingInfluencer}
             />
           </Card>
         </TabsContent>
