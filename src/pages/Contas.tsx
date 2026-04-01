@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Search, Shield, Users, Gamepad2, Loader2, ShieldPlus, Coins, MinusCircle } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Search, Shield, Users, Gamepad2, Loader2, ShieldPlus, Coins, MinusCircle, Star } from "lucide-react";
 import { useAdmins } from "@/hooks/useAdmins";
 import { useAffiliates } from "@/hooks/useAffiliates";
 import { useLeads } from "@/hooks/useLeads";
@@ -25,6 +26,7 @@ interface AccountRow {
   createdAt: string;
   userId?: string | null;
   balanceCents?: number;
+  isInfluencer?: boolean;
 }
 
 const roleConfig: Record<AccountRole, { label: string; icon: typeof Shield; color: string }> = {
@@ -38,11 +40,13 @@ function AccountRowComponent({
   onMakeAdmin,
   onAddBalance,
   onRemoveBalance,
+  onToggleInfluencer,
 }: {
   account: AccountRow;
   onMakeAdmin: (account: AccountRow) => void;
   onAddBalance: (account: AccountRow) => void;
   onRemoveBalance: (account: AccountRow) => void;
+  onToggleInfluencer: (account: AccountRow) => void;
 }) {
   const cfg = roleConfig[account.role];
   const RoleIcon = cfg.icon;
@@ -89,6 +93,14 @@ function AccountRowComponent({
           )}
           {account.role === "player" && (
             <>
+              <div className="flex items-center gap-1.5" title={account.isInfluencer ? "Influencer (clique para remover)" : "Marcar como Influencer"}>
+                <Star className={`h-3.5 w-3.5 ${account.isInfluencer ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground"}`} />
+                <Switch
+                  checked={!!account.isInfluencer}
+                  onCheckedChange={() => onToggleInfluencer(account)}
+                  className="scale-75"
+                />
+              </div>
               <Button
                 variant="ghost"
                 size="sm"
@@ -120,11 +132,13 @@ function AccountTable({
   onMakeAdmin,
   onAddBalance,
   onRemoveBalance,
+  onToggleInfluencer,
 }: {
   accounts: AccountRow[];
   onMakeAdmin: (account: AccountRow) => void;
   onAddBalance: (account: AccountRow) => void;
   onRemoveBalance: (account: AccountRow) => void;
+  onToggleInfluencer: (account: AccountRow) => void;
 }) {
   if (accounts.length === 0) {
     return (
@@ -154,6 +168,7 @@ function AccountTable({
               onMakeAdmin={onMakeAdmin}
               onAddBalance={onAddBalance}
               onRemoveBalance={onRemoveBalance}
+              onToggleInfluencer={onToggleInfluencer}
             />
           ))}
         </tbody>
@@ -173,6 +188,7 @@ export default function Contas() {
   const [removeBalanceTarget, setRemoveBalanceTarget] = useState<AccountRow | null>(null);
   const [removeAmount, setRemoveAmount] = useState("");
   const [removingBalance, setRemovingBalance] = useState(false);
+  const [togglingInfluencer, setTogglingInfluencer] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
   const { data: admins = [], isLoading: loadingAdmins } = useAdmins();
@@ -209,6 +225,7 @@ export default function Contas() {
       createdAt: l.created_at,
       userId: null,
       balanceCents: l.balance_cents,
+      isInfluencer: !!l.is_influencer,
     })),
   ];
 
@@ -301,6 +318,28 @@ export default function Contas() {
     }
   };
 
+  const handleToggleInfluencer = async (account: AccountRow) => {
+    setTogglingInfluencer(account.id);
+    try {
+      const newValue = !account.isInfluencer;
+      const { error } = await supabase
+        .from("leads")
+        .update({ is_influencer: newValue })
+        .eq("id", account.id);
+      if (error) throw error;
+      toast.success(
+        newValue
+          ? `${account.name} agora é Influencer (modo fácil)`
+          : `${account.name} voltou ao modo normal`
+      );
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao atualizar status de influencer");
+    } finally {
+      setTogglingInfluencer(null);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -345,6 +384,7 @@ export default function Contas() {
               onMakeAdmin={setMakeAdminTarget}
               onAddBalance={setBalanceTarget}
               onRemoveBalance={setRemoveBalanceTarget}
+              onToggleInfluencer={handleToggleInfluencer}
             />
           </Card>
         </TabsContent>
