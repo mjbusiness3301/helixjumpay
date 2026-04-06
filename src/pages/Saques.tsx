@@ -20,6 +20,7 @@ import { ArrowDownToLine, CheckCircle2, XCircle, Clock, Search, Loader2 } from "
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useWithdrawals, useUpdateWithdrawalStatus } from "@/hooks/useWithdrawals";
+import { formatCurrency } from "@/lib/country";
 
 type WithdrawalStatus = "pending" | "approved" | "rejected";
 
@@ -68,8 +69,8 @@ export default function Saques() {
 
   const formatDate = (iso: string) => {
     const d = new Date(iso);
-    return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" }) +
-      " às " + d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    return d.toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit", year: "2-digit" }) +
+      " às " + d.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" });
   };
 
   if (isLoading) {
@@ -95,7 +96,7 @@ export default function Saques() {
             <div>
               <p className="text-xs text-muted-foreground">Pendente Total</p>
               <p className="text-lg font-bold text-foreground">
-                {pendingTotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                {formatCurrency(pendingTotal)}
               </p>
             </div>
           </CardContent>
@@ -155,7 +156,7 @@ export default function Saques() {
                       <p className="text-xs text-muted-foreground">{w.affiliate_email}</p>
                     </td>
                     <td className="px-5 py-4 font-semibold text-foreground tabular-nums">
-                      {Number(w.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                      {formatCurrency(Number(w.amount))}
                     </td>
                     <td className="px-5 py-4 text-muted-foreground">{formatDate(w.requested_at)}</td>
                     <td className="px-5 py-4">

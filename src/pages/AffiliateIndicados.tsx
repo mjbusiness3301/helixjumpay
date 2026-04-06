@@ -162,9 +162,9 @@ export default function AffiliateIndicados() {
                       <TableRow key={lead.id}>
                         <TableCell className="font-medium">{lead.name}</TableCell>
                         <TableCell className="text-right font-medium">
-                          {(lead.total_deposited_cents / 100).toLocaleString("pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
+                          {"R$ " + (lead.total_deposited_cents / 100).toLocaleString("pt-PT", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
                           })}
                         </TableCell>
                       </TableRow>

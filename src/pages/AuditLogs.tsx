@@ -117,7 +117,7 @@ export default function AuditLogs() {
           <span className="text-destructive line-through">{d.old_status}</span>
           {" → "}
           <span className="text-primary font-medium">{d.new_status}</span>
-          {d.amount && ` · R$ ${Number(d.amount).toFixed(2)}`}
+          {d.amount && ` · € ${Number(d.amount).toFixed(2)}`}
         </span>
       );
     }

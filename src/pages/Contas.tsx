@@ -12,6 +12,7 @@ import { useAdmins } from "@/hooks/useAdmins";
 import { useAffiliates } from "@/hooks/useAffiliates";
 import { useLeads } from "@/hooks/useLeads";
 import { supabase } from "@/lib/supabase";
+import { detectCountry, formatCurrency, formatCurrencyCents, currencySymbol } from "@/lib/country";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -25,6 +26,7 @@ interface AccountRow {
   status: string;
   createdAt: string;
   userId?: string | null;
+  phone?: string;
   balanceCents?: number;
   isInfluencer?: boolean;
 }
@@ -66,11 +68,11 @@ function AccountRowComponent({
         </span>
       </td>
       <td className="px-5 py-4 text-muted-foreground text-sm">
-        {new Date(account.createdAt).toLocaleDateString("pt-BR")}
+        {new Date(account.createdAt).toLocaleDateString("pt-PT")}
       </td>
       {account.role === "player" && (
         <td className="px-5 py-4 text-foreground text-sm font-medium">
-          R$ {((account.balanceCents || 0) / 100).toFixed(2)}
+          {formatCurrencyCents(account.balanceCents || 0, detectCountry(account.phone || ""))}
         </td>
       )}
       {account.role !== "player" && (
@@ -230,6 +232,7 @@ export default function Contas() {
       status: "active",
       createdAt: l.created_at,
       userId: null,
+      phone: l.phone || "",
       balanceCents: l.balance_cents,
       isInfluencer: !!l.is_influencer,
     })),
@@ -284,7 +287,7 @@ export default function Contas() {
         p_amount: cents,
       });
       if (error) throw error;
-      toast.success(`R$ ${parseFloat(balanceAmount).toFixed(2)} adicionado ao saldo de ${balanceTarget.name}`);
+      toast.success(`${formatCurrency(parseFloat(balanceAmount), detectCountry(balanceTarget.phone || ""))} adicionado ao saldo de ${balanceTarget.name}`);
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       setBalanceTarget(null);
       setBalanceAmount("");
@@ -313,7 +316,7 @@ export default function Contas() {
         p_amount: cents,
       });
       if (error) throw error;
-      toast.success(`R$ ${parseFloat(removeAmount).toFixed(2)} removido do saldo de ${removeBalanceTarget.name}`);
+      toast.success(`${formatCurrency(parseFloat(removeAmount), detectCountry(removeBalanceTarget.phone || ""))} removido do saldo de ${removeBalanceTarget.name}`);
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       setRemoveBalanceTarget(null);
       setRemoveAmount("");
@@ -436,10 +439,10 @@ export default function Contas() {
             Adicionar saldo para <strong>{balanceTarget?.name}</strong>
           </p>
           <p className="text-xs text-muted-foreground mb-2">
-            Saldo atual: <strong className="text-foreground">R$ {((balanceTarget?.balanceCents || 0) / 100).toFixed(2)}</strong>
+            Saldo atual: <strong className="text-foreground">{formatCurrencyCents(balanceTarget?.balanceCents || 0, detectCountry(balanceTarget?.phone || ""))}</strong>
           </p>
           <div className="space-y-2">
-            <Label htmlFor="balance-amount">Valor (R$)</Label>
+            <Label htmlFor="balance-amount">Valor ({currencySymbol(detectCountry(balanceTarget?.phone || ""))})</Label>
             <Input
               id="balance-amount"
               type="number"
@@ -470,10 +473,10 @@ export default function Contas() {
             Remover saldo de <strong>{removeBalanceTarget?.name}</strong>
           </p>
           <p className="text-xs text-muted-foreground">
-            Saldo atual: <strong className="text-foreground">R$ {((removeBalanceTarget?.balanceCents || 0) / 100).toFixed(2)}</strong>
+            Saldo atual: <strong className="text-foreground">{formatCurrencyCents(removeBalanceTarget?.balanceCents || 0, detectCountry(removeBalanceTarget?.phone || ""))}</strong>
           </p>
           <div className="space-y-2">
-            <Label htmlFor="remove-amount">Valor a remover (R$)</Label>
+            <Label htmlFor="remove-amount">Valor a remover ({currencySymbol(detectCountry(removeBalanceTarget?.phone || ""))})</Label>
             <Input
               id="remove-amount"
               type="number"

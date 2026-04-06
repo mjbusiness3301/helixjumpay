@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/chart";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from "recharts";
 import { useAffiliates, useCreateAffiliate, useUpdateAffiliate } from "@/hooks/useAffiliates";
+import { detectCountry, formatCurrency } from "@/lib/country";
 import { useCompliance } from "@/contexts/ComplianceContext";
 import type { Affiliate } from "@/types/database";
 import { useToast } from "@/hooks/use-toast";
@@ -67,14 +68,14 @@ function AffiliateDetailDashboard({
       value: affiliate.total_registrations,
       icon: Users,
       trend: affiliate.trend,
-      format: (v: number) => v.toLocaleString("pt-BR"),
+      format: (v: number) => v.toLocaleString("pt-PT"),
     },
     {
       label: "Depósitos",
       value: affiliate.total_deposits,
       icon: MousePointerClick,
       trend: affiliate.trend * 0.8,
-      format: (v: number) => v.toLocaleString("pt-BR"),
+      format: (v: number) => v.toLocaleString("pt-PT"),
     },
     {
       label: "Valor de Depósitos",
@@ -82,7 +83,7 @@ function AffiliateDetailDashboard({
       icon: DollarSign,
       trend: affiliate.trend * 1.2,
       format: (v: number) =>
-        v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
+        formatCurrency(v, detectCountry(affiliate.phone || "")),
     },
     {
       label: "Saldo",
@@ -90,7 +91,7 @@ function AffiliateDetailDashboard({
       icon: Wallet,
       trend: affiliate.trend * 0.5,
       format: (v: number) =>
-        v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
+        formatCurrency(v, detectCountry(affiliate.phone || "")),
     },
   ];
 
@@ -109,7 +110,7 @@ function AffiliateDetailDashboard({
           <h1 className="text-2xl font-bold text-foreground">{affiliate.name}</h1>
           <p className="text-sm text-muted-foreground">
             <span className="font-mono">ID: {affiliate.display_id}</span> · {affiliate.email} · Desde{" "}
-            {new Date(affiliate.created_at).toLocaleDateString("pt-BR")}
+            {new Date(affiliate.created_at).toLocaleDateString("pt-PT")}
           </p>
         </div>
         <span
@@ -436,11 +437,11 @@ export default function Afiliados() {
                   <div className="grid grid-cols-3 gap-3">
                     <div>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Cadastros</p>
-                      <p className="text-sm font-bold text-foreground">{affiliate.total_registrations.toLocaleString("pt-BR")}</p>
+                      <p className="text-sm font-bold text-foreground">{affiliate.total_registrations.toLocaleString("pt-PT")}</p>
                     </div>
                     <div>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Depósitos</p>
-                      <p className="text-sm font-bold text-foreground">{affiliate.total_deposits.toLocaleString("pt-BR")}</p>
+                      <p className="text-sm font-bold text-foreground">{affiliate.total_deposits.toLocaleString("pt-PT")}</p>
                     </div>
                     <div>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Comissão</p>
@@ -449,19 +450,19 @@ export default function Afiliados() {
                     <div>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Valor Dep.</p>
                       <p className="text-sm font-bold text-foreground">
-                        {Number(affiliate.deposit_value).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                        {formatCurrency(Number(affiliate.deposit_value), detectCountry(affiliate.phone || ""))}
                       </p>
                     </div>
                     <div>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Saldo</p>
                       <p className="text-sm font-bold text-foreground">
-                        {Number(affiliate.balance).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                        {formatCurrency(Number(affiliate.balance), detectCountry(affiliate.phone || ""))}
                       </p>
                     </div>
                     <div>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Lucro</p>
                       <p className="text-sm font-bold text-primary">
-                        {(Number(affiliate.deposit_value) * (Number(affiliate.commission) / 100)).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                        {formatCurrency(Number(affiliate.deposit_value) * (Number(affiliate.commission) / 100), detectCountry(affiliate.phone || ""))}
                       </p>
                     </div>
                   </div>
