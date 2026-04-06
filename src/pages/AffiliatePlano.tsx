@@ -75,10 +75,10 @@ export default function AffiliatePlano() {
                 <span className="text-xs font-medium uppercase tracking-wider">Total Ganho</span>
               </div>
               <p className="text-3xl font-bold text-foreground">
-                {earnings.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                {earnings.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
               <p className="text-xs text-muted-foreground">
-                de {depositValue.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} em depósitos
+                de {depositValue.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} em depósitos
               </p>
             </div>
           </div>

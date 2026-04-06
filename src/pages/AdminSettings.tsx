@@ -161,7 +161,7 @@ export default function AdminSettings() {
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="gateway-fee-fixed">Taxa fixa por transação (R$)</Label>
+              <Label htmlFor="gateway-fee-fixed">Taxa fixa por transação (€)</Label>
               <div className="relative">
                 <Input
                   id="gateway-fee-fixed"
@@ -177,7 +177,7 @@ export default function AdminSettings() {
                   disabled={whatsappInitialLoading}
                   className="pl-10"
                 />
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">R$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">€</span>
               </div>
             </div>
             <p className="text-xs text-muted-foreground">Percentual + valor fixo cobrados pelo gateway sobre cada depósito. Serão descontados no cálculo de lucro líquido.</p>

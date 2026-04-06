@@ -26,7 +26,7 @@ const statusConfig: Record<string, { label: string; variant: "default" | "second
 };
 
 const formatCurrency = (cents: number) =>
-  new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(cents / 100);
+  "R$ " + (cents / 100).toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export function AffiliateDepositHistory({ affiliateId }: AffiliateDepositHistoryProps) {
   // Get lead IDs belonging to this affiliate

@@ -216,29 +216,29 @@ export default function AffiliateDashboard() {
   const stats = [
     {
       label: "Cadastros",
-      value: totalReg.toLocaleString("pt-BR"),
+      value: totalReg.toLocaleString("pt-PT"),
       icon: Users,
       trend: null,
     },
     {
       label: "Depósitos",
-      value: totalDep.toLocaleString("pt-BR"),
+      value: totalDep.toLocaleString("pt-PT"),
       icon: Wallet,
       trend: null,
     },
     {
       label: "Ganhos",
-      value: earningsCalc.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
+      value: earningsCalc.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       icon: DollarSign,
       trend: null,
     },
     {
       label: "Saldo Disponível",
-      value: balance.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
+      value: balance.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       icon: Wallet,
       trend: null,
       subtitle: pendingBalance > 0
-        ? `+ ${pendingBalance.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} pendente`
+        ? `+ ${pendingBalance.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} pendente`
         : undefined,
     },
   ];
@@ -382,13 +382,13 @@ export default function AffiliateDashboard() {
           <div className="space-y-4 pt-2">
             <p className="text-sm text-muted-foreground">
               Saldo disponível: <strong className="text-foreground">
-                {balance.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                {balance.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </strong>
             </p>
             <div className="space-y-2">
               <Label htmlFor="withdraw-amount">Valor do saque</Label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">R$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">€</span>
                 <Input
                   id="withdraw-amount"
                   type="number"

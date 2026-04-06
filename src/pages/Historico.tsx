@@ -120,8 +120,8 @@ export default function Historico() {
 
   const hasFilters = statusFilter !== "all" || dateFrom || dateTo;
 
-  const formatCurrency = (cents: number) =>
-    new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(cents / 100);
+  const formatCurrencyLocal = (cents: number) =>
+    "R$ " + (cents / 100).toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
     confirmed: { label: "Pago", variant: "default" },
@@ -234,7 +234,7 @@ export default function Historico() {
                           );
                         })()}
                       </TableCell>
-                      <TableCell>{formatCurrency(Number(dep.amount_cents))}</TableCell>
+                      <TableCell>{formatCurrencyLocal(Number(dep.amount_cents))}</TableCell>
                       <TableCell>
                         <Badge variant={status.variant}>{status.label}</Badge>
                       </TableCell>
