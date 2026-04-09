@@ -29,6 +29,7 @@ interface AccountRow {
   phone?: string;
   balanceCents?: number;
   isInfluencer?: boolean;
+  country?: string | null;
 }
 
 const roleConfig: Record<AccountRole, { label: string; icon: typeof Shield; color: string }> = {
@@ -188,6 +189,7 @@ function AccountTable({
 export default function Contas() {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState("all");
+  const [countryFilter, setCountryFilter] = useState<"all" | "PT" | "BR">("all");
   const [makeAdminTarget, setMakeAdminTarget] = useState<AccountRow | null>(null);
   const [makingAdmin, setMakingAdmin] = useState(false);
   const [balanceTarget, setBalanceTarget] = useState<AccountRow | null>(null);
@@ -235,6 +237,7 @@ export default function Contas() {
       phone: l.phone || "",
       balanceCents: l.balance_cents,
       isInfluencer: !!l.is_influencer,
+      country: l.country || null,
     })),
   ];
 
@@ -243,7 +246,8 @@ export default function Contas() {
     const matchesSearch =
       a.name.toLowerCase().includes(search.toLowerCase()) ||
       a.email.toLowerCase().includes(search.toLowerCase());
-    return matchesTab && matchesSearch;
+    const matchesCountry = countryFilter === "all" || a.country === countryFilter;
+    return matchesTab && matchesSearch && matchesCountry;
   });
 
   const counts = {
@@ -385,6 +389,13 @@ export default function Contas() {
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10 bg-secondary border-border/40"
           />
+        </div>
+        <div className="flex items-center gap-1">
+          {(["all", "PT", "BR"] as const).map((c) => (
+            <Button key={c} size="sm" variant={countryFilter === c ? "default" : "outline"} onClick={() => setCountryFilter(c)} className="h-8 px-3 text-xs">
+              {c === "all" ? "Todos" : c}
+            </Button>
+          ))}
         </div>
       </div>
 
