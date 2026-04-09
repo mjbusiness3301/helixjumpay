@@ -12,7 +12,7 @@ import { useAdmins } from "@/hooks/useAdmins";
 import { useAffiliates } from "@/hooks/useAffiliates";
 import { useLeads } from "@/hooks/useLeads";
 import { supabase } from "@/lib/supabase";
-import { detectCountry, formatCurrency, formatCurrencyCents, currencySymbol } from "@/lib/country";
+import { formatCurrency, formatCurrencyCents, currencySymbol } from "@/lib/country";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -73,7 +73,7 @@ function AccountRowComponent({
       </td>
       {account.role === "player" && (
         <td className="px-5 py-4 text-foreground text-sm font-medium">
-          {formatCurrencyCents(account.balanceCents || 0, detectCountry(account.phone || ""))}
+          {formatCurrencyCents(account.balanceCents || 0, (account.country as any) || "BR")}
         </td>
       )}
       {account.role !== "player" && (
@@ -291,7 +291,7 @@ export default function Contas() {
         p_amount: cents,
       });
       if (error) throw error;
-      toast.success(`${formatCurrency(parseFloat(balanceAmount), detectCountry(balanceTarget.phone || ""))} adicionado ao saldo de ${balanceTarget.name}`);
+      toast.success(`${formatCurrency(parseFloat(balanceAmount), (balanceTarget.country as any) || "BR")} adicionado ao saldo de ${balanceTarget.name}`);
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       setBalanceTarget(null);
       setBalanceAmount("");
@@ -320,7 +320,7 @@ export default function Contas() {
         p_amount: cents,
       });
       if (error) throw error;
-      toast.success(`${formatCurrency(parseFloat(removeAmount), detectCountry(removeBalanceTarget.phone || ""))} removido do saldo de ${removeBalanceTarget.name}`);
+      toast.success(`${formatCurrency(parseFloat(removeAmount), (removeBalanceTarget.country as any) || "BR")} removido do saldo de ${removeBalanceTarget.name}`);
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       setRemoveBalanceTarget(null);
       setRemoveAmount("");
@@ -450,10 +450,10 @@ export default function Contas() {
             Adicionar saldo para <strong>{balanceTarget?.name}</strong>
           </p>
           <p className="text-xs text-muted-foreground mb-2">
-            Saldo atual: <strong className="text-foreground">{formatCurrencyCents(balanceTarget?.balanceCents || 0, detectCountry(balanceTarget?.phone || ""))}</strong>
+            Saldo atual: <strong className="text-foreground">{formatCurrencyCents(balanceTarget?.balanceCents || 0, (balanceTarget?.country as any) || "BR")}</strong>
           </p>
           <div className="space-y-2">
-            <Label htmlFor="balance-amount">Valor ({currencySymbol(detectCountry(balanceTarget?.phone || ""))})</Label>
+            <Label htmlFor="balance-amount">Valor ({currencySymbol((balanceTarget?.country as any) || "BR")})</Label>
             <Input
               id="balance-amount"
               type="number"
@@ -484,10 +484,10 @@ export default function Contas() {
             Remover saldo de <strong>{removeBalanceTarget?.name}</strong>
           </p>
           <p className="text-xs text-muted-foreground">
-            Saldo atual: <strong className="text-foreground">{formatCurrencyCents(removeBalanceTarget?.balanceCents || 0, detectCountry(removeBalanceTarget?.phone || ""))}</strong>
+            Saldo atual: <strong className="text-foreground">{formatCurrencyCents(removeBalanceTarget?.balanceCents || 0, (removeBalanceTarget?.country as any) || "BR")}</strong>
           </p>
           <div className="space-y-2">
-            <Label htmlFor="remove-amount">Valor a remover ({currencySymbol(detectCountry(removeBalanceTarget?.phone || ""))})</Label>
+            <Label htmlFor="remove-amount">Valor a remover ({currencySymbol((removeBalanceTarget?.country as any) || "BR")})</Label>
             <Input
               id="remove-amount"
               type="number"
