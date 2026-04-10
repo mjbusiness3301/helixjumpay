@@ -74,15 +74,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
+    let initialized = false;
 
-    // Set up listener FIRST
+    const init = async () => {
+      const { data: { session: initialSession } } = await supabase.auth.getSession();
+      if (!mounted) return;
+
+      setSession(initialSession);
+
+      if (initialSession?.user) {
+        const role = await determineRole(initialSession.user.id);
+        if (mounted) setUserRole(role);
+      }
+
+      if (mounted) {
+        setLoading(false);
+        initialized = true;
+      }
+    };
+
+    init();
+
+    // Listen for sign-in / sign-out after initial load
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, newSession) => {
         if (!mounted) return;
+        // Skip the initial session event — already handled by init()
+        if (!initialized) return;
+
         setSession(newSession);
 
         if (newSession?.user) {
-          // Use setTimeout to avoid Supabase client deadlock
           setTimeout(async () => {
             if (!mounted) return;
             const role = await determineRole(newSession.user.id);
@@ -97,20 +119,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
     );
-
-    // Then get initial session
-    supabase.auth.getSession().then(async ({ data: { session: initialSession } }) => {
-      if (!mounted) return;
-      setSession(initialSession);
-
-      if (initialSession?.user) {
-        const role = await determineRole(initialSession.user.id);
-        if (mounted) {
-          setUserRole(role);
-        }
-      }
-      if (mounted) setLoading(false);
-    });
 
     return () => {
       mounted = false;
