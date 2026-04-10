@@ -60,6 +60,16 @@ const App = () => (
                 }
               />
               <Route
+                path="/admin/rede"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <DashboardLayout>
+                      <AffiliateNetwork />
+                    </DashboardLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/admin/saques"
                 element={
                   <ProtectedRoute requiredRole="admin">
