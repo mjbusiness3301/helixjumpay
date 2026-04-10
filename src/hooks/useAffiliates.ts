@@ -81,7 +81,7 @@ export function useAffiliates() {
 export function useCreateAffiliate() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (affiliate: { name: string; email: string; password: string; commission: number; parent_affiliate_id?: string | null }) => {
+    mutationFn: async (affiliate: { name: string; email: string; password: string; commission: number; parent_affiliate_id?: string | null; country?: "PT" | "BR" }) => {
       // Save admin session before creating affiliate account
       const { data: { session: adminSession } } = await supabase.auth.getSession();
       if (!adminSession) throw new Error("Sessão de admin não encontrada");
@@ -118,6 +118,7 @@ export function useCreateAffiliate() {
         name: affiliate.name,
         email: affiliate.email,
         commission: affiliate.commission,
+        country: affiliate.country || "BR",
       };
       if (affiliate.parent_affiliate_id) {
         insertPayload.parent_affiliate_id = affiliate.parent_affiliate_id;

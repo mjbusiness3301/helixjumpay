@@ -25,6 +25,7 @@ export interface Affiliate {
   display_id: number;
   created_at: string;
   parent_affiliate_id?: string | null;
+  country?: "PT" | "BR";
 }
 
 export interface AffiliateCommission {

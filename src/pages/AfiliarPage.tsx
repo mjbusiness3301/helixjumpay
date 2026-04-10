@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Loader2, CheckCircle, Network } from "lucide-react";
 import logo from "@/assets/logo.png";
 
@@ -20,6 +27,7 @@ export default function AfiliarPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [country, setCountry] = useState<"PT" | "BR">("BR");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -67,6 +75,7 @@ export default function AfiliarPage() {
         name: name.trim(),
         email: email.trim(),
         commission: 0,
+        country,
       };
       if (referrer?.id) payload.parent_affiliate_id = referrer.id;
 
@@ -134,6 +143,18 @@ export default function AfiliarPage() {
               <div className="space-y-1.5">
                 <Label htmlFor="confirm">Confirmar senha</Label>
                 <Input id="confirm" type="password" placeholder="Repita a senha" value={confirm} onChange={(e) => setConfirm(e.target.value)} disabled={loading} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="country">País</Label>
+                <Select value={country} onValueChange={(v) => setCountry(v as "PT" | "BR")} disabled={loading}>
+                  <SelectTrigger id="country">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="BR">🇧🇷 Brasil (BRL)</SelectItem>
+                    <SelectItem value="PT">🇵🇹 Portugal (EUR)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {error && <p className="text-sm text-destructive">{error}</p>}

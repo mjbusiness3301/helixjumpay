@@ -45,6 +45,8 @@ import { useCreateWithdrawal } from "@/hooks/useWithdrawals";
 import { useToast } from "@/hooks/use-toast";
 import { useHourlyChartData } from "@/hooks/useActivityLogs";
 import type { Affiliate } from "@/types/database";
+import { formatCurrency, currencySymbol } from "@/lib/country";
+import type { CountryCode } from "@/lib/country";
 
 type FilterType = "today" | "yesterday" | "7days" | "custom";
 
@@ -165,7 +167,9 @@ export default function AffiliateDashboard() {
     );
   }
 
-  const referralLink = `https://pt.helixjumpay.online?ref=${affiliate.ref_code || affiliate.id}`;
+  const country: CountryCode = affiliate.country || "BR";
+  const domain = country === "PT" ? "pt.helixjumpay.online" : "helixjumpay.online";
+  const referralLink = `https://${domain}?ref=${affiliate.ref_code || affiliate.id}`;
   const balance = Number(affiliate.balance);
   const pendingBalance = Number(affiliate.pending_balance || 0);
 
@@ -228,17 +232,17 @@ export default function AffiliateDashboard() {
     },
     {
       label: "Ganhos",
-      value: earningsCalc.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      value: formatCurrency(earningsCalc, country),
       icon: DollarSign,
       trend: null,
     },
     {
       label: "Saldo Disponível",
-      value: balance.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      value: formatCurrency(balance, country),
       icon: Wallet,
       trend: null,
       subtitle: pendingBalance > 0
-        ? `+ ${pendingBalance.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} pendente`
+        ? `+ ${formatCurrency(pendingBalance, country)} pendente`
         : undefined,
     },
   ];
@@ -382,13 +386,13 @@ export default function AffiliateDashboard() {
           <div className="space-y-4 pt-2">
             <p className="text-sm text-muted-foreground">
               Saldo disponível: <strong className="text-foreground">
-                {balance.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {formatCurrency(balance, country)}
               </strong>
             </p>
             <div className="space-y-2">
               <Label htmlFor="withdraw-amount">Valor do saque</Label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">€</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">{currencySymbol(country)}</span>
                 <Input
                   id="withdraw-amount"
                   type="number"

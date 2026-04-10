@@ -48,7 +48,7 @@ import {
 } from "@/components/ui/chart";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from "recharts";
 import { useAffiliates, useCreateAffiliate, useUpdateAffiliate } from "@/hooks/useAffiliates";
-import { detectCountry, formatCurrency } from "@/lib/country";
+import { formatCurrency } from "@/lib/country";
 import { useCompliance } from "@/contexts/ComplianceContext";
 import type { Affiliate } from "@/types/database";
 import { useToast } from "@/hooks/use-toast";
@@ -91,7 +91,7 @@ function AffiliateDetailDashboard({
       icon: DollarSign,
       trend: affiliate.trend * 1.2,
       format: (v: number) =>
-        formatCurrency(v, detectCountry(affiliate.phone || "")),
+        formatCurrency(v, affiliate.country || "BR"),
     },
     {
       label: "Saldo",
@@ -99,7 +99,7 @@ function AffiliateDetailDashboard({
       icon: Wallet,
       trend: affiliate.trend * 0.5,
       format: (v: number) =>
-        formatCurrency(v, detectCountry(affiliate.phone || "")),
+        formatCurrency(v, affiliate.country || "BR"),
     },
   ];
 
@@ -195,7 +195,7 @@ export default function Afiliados() {
   const [selectedAffiliate, setSelectedAffiliate] = useState<Affiliate | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
-  const [form, setForm] = useState({ name: "", email: "", password: "", commission: "", parent_affiliate_id: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", commission: "", parent_affiliate_id: "", country: "BR" as "PT" | "BR" });
   const [search, setSearch] = useState("");
   const [commissionDialog, setCommissionDialog] = useState<{ open: boolean; affiliate: Affiliate | null; value: string }>({
     open: false,
@@ -207,7 +207,7 @@ export default function Afiliados() {
     setDialogOpen(open);
     if (!open) {
       setStep(1);
-      setForm({ name: "", email: "", password: "", commission: "", parent_affiliate_id: "" });
+      setForm({ name: "", email: "", password: "", commission: "", parent_affiliate_id: "", country: "BR" });
     }
   };
 
@@ -227,6 +227,7 @@ export default function Afiliados() {
         password: form.password,
         commission: Number(form.commission),
         parent_affiliate_id: form.parent_affiliate_id || null,
+        country: form.country,
       });
       toast({ title: "Afiliado cadastrado com sucesso!" });
       handleDialogChange(false);
@@ -332,6 +333,18 @@ export default function Afiliados() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="af-country">País</Label>
+                  <Select value={form.country} onValueChange={(v) => setForm((f) => ({ ...f, country: v as "PT" | "BR" }))}>
+                    <SelectTrigger id="af-country">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                      <SelectItem value="BR">🇧🇷 Brasil (BRL)</SelectItem>
+                      <SelectItem value="PT">🇵🇹 Portugal (EUR)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Button className="w-full" onClick={() => setStep(2)} disabled={!form.name.trim() || !form.email.trim() || form.password.length < 6}>
                   Próximo
                 </Button>
@@ -415,7 +428,9 @@ export default function Afiliados() {
                         {affiliate.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                       </div>
                       <div>
-                        <p className="font-semibold text-foreground group-hover:text-primary transition-colors">{affiliate.name}</p>
+                        <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                          {affiliate.country === "PT" ? "🇵🇹 " : "🇧🇷 "}{affiliate.name}
+                        </p>
                         <p className="text-xs text-muted-foreground">{affiliate.email}</p>
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className="text-[10px] font-mono text-muted-foreground">ID: {affiliate.display_id}</span>
@@ -477,19 +492,19 @@ export default function Afiliados() {
                     <div>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Valor Dep.</p>
                       <p className="text-sm font-bold text-foreground">
-                        {formatCurrency(Number(affiliate.deposit_value), detectCountry(affiliate.phone || ""))}
+                        {formatCurrency(Number(affiliate.deposit_value), affiliate.country || "BR")}
                       </p>
                     </div>
                     <div>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Saldo</p>
                       <p className="text-sm font-bold text-foreground">
-                        {formatCurrency(Number(affiliate.balance), detectCountry(affiliate.phone || ""))}
+                        {formatCurrency(Number(affiliate.balance), affiliate.country || "BR")}
                       </p>
                     </div>
                     <div>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Lucro</p>
                       <p className="text-sm font-bold text-primary">
-                        {formatCurrency(Number(affiliate.deposit_value) * (Number(affiliate.commission) / 100), detectCountry(affiliate.phone || ""))}
+                        {formatCurrency(Number(affiliate.deposit_value) * (Number(affiliate.commission) / 100), affiliate.country || "BR")}
                       </p>
                     </div>
                   </div>
