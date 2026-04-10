@@ -23,9 +23,8 @@ export function ProtectedRoute({
     return <Navigate to="/" replace />;
   }
 
-  if (requiredRole && userRole !== requiredRole) {
-    // Redirect to correct panel
-    if (userRole === "admin") return <Navigate to="/admin" replace />;
+  // Admin can access everything
+  if (requiredRole && userRole !== requiredRole && userRole !== "admin") {
     if (userRole === "affiliate") return <Navigate to="/painel" replace />;
     return <Navigate to="/" replace />;
   }

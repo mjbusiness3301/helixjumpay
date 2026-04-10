@@ -452,7 +452,7 @@ export default function Afiliados() {
                             <Percent className="h-4 w-4 mr-2" />
                             Ajustar Comissão
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/admin/rede?id=${affiliate.id}`); }}>
+                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/painel/rede?id=${affiliate.id}`); }}>
                             <Network className="h-4 w-4 mr-2" />
                             Ver Rede
                           </DropdownMenuItem>
