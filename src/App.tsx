@@ -20,6 +20,7 @@ import AffiliateHistorico from "./pages/AffiliateHistorico.tsx";
 import AffiliatePlano from "./pages/AffiliatePlano.tsx";
 import AffiliateIndicados from "./pages/AffiliateIndicados.tsx";
 import AffiliateNetwork from "./pages/AffiliateNetwork.tsx";
+import AfiliarPage from "./pages/AfiliarPage.tsx";
 import AdminSettings from "./pages/AdminSettings.tsx";
 import AuditLogs from "./pages/AuditLogs.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -37,6 +38,9 @@ const App = () => (
             <Routes>
               {/* Login */}
               <Route path="/" element={<Index />} />
+
+              {/* Public affiliate registration */}
+              <Route path="/afiliar" element={<AfiliarPage />} />
 
               {/* Admin routes */}
               <Route
