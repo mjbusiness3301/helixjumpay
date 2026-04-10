@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Lock, Loader2, MessageCircle, Save, Percent } from "lucide-react";
+import { Lock, Loader2, MessageCircle, Save, Percent, Network } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 
@@ -21,16 +21,22 @@ export default function AdminSettings() {
   const [gatewayFeeFixed, setGatewayFeeFixed] = useState("");
   const [gatewayFeeLoading, setGatewayFeeLoading] = useState(false);
 
+  const [commLevel2, setCommLevel2] = useState("");
+  const [commLevel3, setCommLevel3] = useState("");
+  const [commLoading, setCommLoading] = useState(false);
+
   useEffect(() => {
     supabase
       .from("settings")
       .select("key, value")
-      .in("key", ["whatsapp_group_link", "gateway_fee_percent", "gateway_fee_fixed"])
+      .in("key", ["whatsapp_group_link", "gateway_fee_percent", "gateway_fee_fixed", "commission_level2_pct", "commission_level3_pct"])
       .then(({ data }) => {
         for (const row of data ?? []) {
           if (row.key === "whatsapp_group_link") setWhatsappLink(row.value);
           if (row.key === "gateway_fee_percent") setGatewayFee(row.value);
           if (row.key === "gateway_fee_fixed") setGatewayFeeFixed(row.value);
+          if (row.key === "commission_level2_pct") setCommLevel2(row.value);
+          if (row.key === "commission_level3_pct") setCommLevel3(row.value);
         }
         setWhatsappInitialLoading(false);
       });
@@ -209,6 +215,81 @@ export default function AdminSettings() {
           </Button>
         </CardContent>
       </Card>
+      <Card className="bg-card/80 backdrop-blur-sm border-border">
+        <CardContent className="p-5 space-y-5">
+          <div className="flex items-center gap-2 mb-1">
+            <Network className="h-4 w-4 text-primary" />
+            <h3 className="text-sm font-semibold text-foreground">Comissões da Rede de Afiliados</h3>
+          </div>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="comm-level2">Nível 2 — Sub-afiliado (%)</Label>
+              <div className="relative">
+                <Input
+                  id="comm-level2"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  placeholder="Ex: 5"
+                  value={commLevel2}
+                  onChange={(e) => setCommLevel2(e.target.value)}
+                  disabled={whatsappInitialLoading}
+                  className="pr-8"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="comm-level3">Nível 3 — Sub-sub-afiliado (%)</Label>
+              <div className="relative">
+                <Input
+                  id="comm-level3"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  placeholder="Ex: 2"
+                  value={commLevel3}
+                  onChange={(e) => setCommLevel3(e.target.value)}
+                  disabled={whatsappInitialLoading}
+                  className="pr-8"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              O Nível 1 é a comissão própria de cada afiliado (configurada individualmente). Os níveis 2 e 3 são fixos para toda a rede.
+            </p>
+          </div>
+          <Button
+            className="w-full"
+            disabled={commLoading || whatsappInitialLoading}
+            onClick={async () => {
+              setCommLoading(true);
+              try {
+                const now = new Date().toISOString();
+                const { error } = await supabase
+                  .from("settings")
+                  .upsert([
+                    { key: "commission_level2_pct", value: commLevel2 || "5", updated_at: now },
+                    { key: "commission_level3_pct", value: commLevel3 || "2", updated_at: now },
+                  ]);
+                if (error) throw error;
+                toast({ title: "Comissões da rede salvas com sucesso!" });
+              } catch (err: any) {
+                toast({ title: "Erro ao salvar", description: err.message, variant: "destructive" });
+              } finally {
+                setCommLoading(false);
+              }
+            }}
+          >
+            {commLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+            {commLoading ? "Salvando..." : "Salvar Comissões"}
+          </Button>
+        </CardContent>
+      </Card>
+
       </div>
     </div>
   );
