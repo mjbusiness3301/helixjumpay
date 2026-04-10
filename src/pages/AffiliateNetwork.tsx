@@ -54,7 +54,7 @@ export default function AffiliateNetwork() {
 
   const [copied, setCopied] = useState(false);
   const inviteLink = rootNode
-    ? `${window.location.origin}/afiliar?ref=${rootNode.ref_code}`
+    ? `https://admin.helixjumpay.online/afiliar?ref=${rootNode.ref_code}`
     : null;
 
   const handleCopy = () => {
