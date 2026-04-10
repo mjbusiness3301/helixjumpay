@@ -121,7 +121,7 @@ export default function Historico() {
   const hasFilters = statusFilter !== "all" || dateFrom || dateTo;
 
   const formatCurrencyLocal = (cents: number) =>
-    "R$ " + (cents / 100).toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    "€ " + (cents / 100).toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
     confirmed: { label: "Pago", variant: "default" },

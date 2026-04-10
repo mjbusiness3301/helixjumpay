@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Loader2, Search, Users, ChevronLeft, ChevronRight } from "lucide-react";
+import { formatCurrencyCents } from "@/lib/country";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCompliance } from "@/contexts/ComplianceContext";
 import { useQuery } from "@tanstack/react-query";
@@ -162,10 +163,7 @@ export default function AffiliateIndicados() {
                       <TableRow key={lead.id}>
                         <TableCell className="font-medium">{lead.name}</TableCell>
                         <TableCell className="text-right font-medium">
-                          {"R$ " + (lead.total_deposited_cents / 100).toLocaleString("pt-PT", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
+                          {formatCurrencyCents(lead.total_deposited_cents, "PT")}
                         </TableCell>
                       </TableRow>
                     ))}

@@ -32,6 +32,7 @@ import { ptBR } from "date-fns/locale";
 import type { DateRange } from "react-day-picker";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { useHourlyChartData } from "@/hooks/useActivityLogs";
+import { formatCurrency } from "@/lib/country";
 
 type FilterType = "today" | "yesterday" | "7days" | "custom";
 
@@ -132,25 +133,25 @@ const Dashboard = () => {
     },
     {
       title: "Valor de Depósitos",
-      value: `R$ ${totalValorDepositos.toLocaleString("pt-PT", { minimumFractionDigits: 2 })}`,
+      value: formatCurrency(totalValorDepositos, "PT"),
       icon: DollarSign,
       color: "text-[hsl(200_80%_55%)]",
       bgIcon: "bg-[hsl(200_80%_55%/0.1)]",
     },
     {
       title: "Lucro Líquido",
-      value: `R$ ${lucro.toLocaleString("pt-PT", { minimumFractionDigits: 2 })}`,
+      value: formatCurrency(lucro, "PT"),
       icon: TrendingUp,
       color: lucro >= 0 ? "text-primary" : "text-destructive",
       bgIcon: lucro >= 0 ? "bg-primary/10" : "bg-destructive/10",
       subtitle: [
-        totalComissoes > 0 ? `Comissões: -R$ ${totalComissoes.toLocaleString("pt-PT", { minimumFractionDigits: 2 })}` : null,
-        totalTaxaGateway > 0 ? `Gateway: -R$ ${totalTaxaGateway.toLocaleString("pt-PT", { minimumFractionDigits: 2 })}` : null,
+        totalComissoes > 0 ? `Comissões: -${formatCurrency(totalComissoes, "PT")}` : null,
+        totalTaxaGateway > 0 ? `Gateway: -${formatCurrency(totalTaxaGateway, "PT")}` : null,
       ].filter(Boolean).join(" · ") || undefined,
     },
     {
       title: "Saldo em Contas",
-      value: `R$ ${totalSaldo.toLocaleString("pt-PT", { minimumFractionDigits: 2 })}`,
+      value: formatCurrency(totalSaldo, "PT"),
       icon: DollarSign,
       color: "text-foreground",
       bgIcon: "bg-secondary",
