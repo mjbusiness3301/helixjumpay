@@ -32,7 +32,15 @@ import {
   Percent,
   Loader2,
   Search,
+  Network,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   ChartContainer,
   ChartTooltip,
@@ -187,7 +195,7 @@ export default function Afiliados() {
   const [selectedAffiliate, setSelectedAffiliate] = useState<Affiliate | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
-  const [form, setForm] = useState({ name: "", email: "", password: "", commission: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", commission: "", parent_affiliate_id: "" });
   const [search, setSearch] = useState("");
   const [commissionDialog, setCommissionDialog] = useState<{ open: boolean; affiliate: Affiliate | null; value: string }>({
     open: false,
@@ -199,7 +207,7 @@ export default function Afiliados() {
     setDialogOpen(open);
     if (!open) {
       setStep(1);
-      setForm({ name: "", email: "", password: "", commission: "" });
+      setForm({ name: "", email: "", password: "", commission: "", parent_affiliate_id: "" });
     }
   };
 
@@ -218,6 +226,7 @@ export default function Afiliados() {
         email: form.email,
         password: form.password,
         commission: Number(form.commission),
+        parent_affiliate_id: form.parent_affiliate_id || null,
       });
       toast({ title: "Afiliado cadastrado com sucesso!" });
       handleDialogChange(false);
@@ -308,6 +317,20 @@ export default function Afiliados() {
                 <div className="space-y-2">
                   <Label htmlFor="af-password">Senha</Label>
                   <Input id="af-password" type="password" placeholder="Mínimo 6 caracteres" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="af-parent">Afiliado Superior (opcional)</Label>
+                  <Select value={form.parent_affiliate_id} onValueChange={(v) => setForm((f) => ({ ...f, parent_affiliate_id: v === "__none__" ? "" : v }))}>
+                    <SelectTrigger id="af-parent">
+                      <SelectValue placeholder="Nenhum (afiliado raiz)" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                      <SelectItem value="__none__">Nenhum (afiliado raiz)</SelectItem>
+                      {affiliates.map((a) => (
+                        <SelectItem key={a.id} value={a.id}>{a.name} — {a.email}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <Button className="w-full" onClick={() => setStep(2)} disabled={!form.name.trim() || !form.email.trim() || form.password.length < 6}>
                   Próximo
@@ -428,6 +451,10 @@ export default function Afiliados() {
                           <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setCommissionDialog({ open: true, affiliate, value: String(affiliate.commission) }); }}>
                             <Percent className="h-4 w-4 mr-2" />
                             Ajustar Comissão
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/painel/rede?id=${affiliate.id}`); }}>
+                            <Network className="h-4 w-4 mr-2" />
+                            Ver Rede
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

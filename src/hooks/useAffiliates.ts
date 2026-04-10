@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
-import type { Affiliate } from "@/types/database";
+import type { Affiliate, AffiliateCommission, AffiliateNetworkNode } from "@/types/database";
 
 export function useAffiliates() {
   return useQuery({
@@ -81,7 +81,7 @@ export function useAffiliates() {
 export function useCreateAffiliate() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (affiliate: { name: string; email: string; password: string; commission: number }) => {
+    mutationFn: async (affiliate: { name: string; email: string; password: string; commission: number; parent_affiliate_id?: string | null }) => {
       // Save admin session before creating affiliate account
       const { data: { session: adminSession } } = await supabase.auth.getSession();
       if (!adminSession) throw new Error("Sessão de admin não encontrada");
@@ -113,14 +113,18 @@ export function useCreateAffiliate() {
       });
 
       // 3. Insert into affiliates table with user_id
+      const insertPayload: Record<string, unknown> = {
+        user_id: authData.user.id,
+        name: affiliate.name,
+        email: affiliate.email,
+        commission: affiliate.commission,
+      };
+      if (affiliate.parent_affiliate_id) {
+        insertPayload.parent_affiliate_id = affiliate.parent_affiliate_id;
+      }
       const { data, error } = await supabase
         .from("affiliates")
-        .insert({
-          user_id: authData.user.id,
-          name: affiliate.name,
-          email: affiliate.email,
-          commission: affiliate.commission,
-        })
+        .insert(insertPayload)
         .select()
         .single();
 
@@ -145,5 +149,36 @@ export function useUpdateAffiliate() {
       return data as Affiliate;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["affiliates"] }),
+  });
+}
+
+export function useAffiliateNetwork(affiliateId: string | null) {
+  return useQuery({
+    queryKey: ['affiliate-network', affiliateId],
+    queryFn: async () => {
+      if (!affiliateId) return [];
+      const { data, error } = await supabase.rpc('get_affiliate_network', { p_affiliate_id: affiliateId });
+      if (error) throw error;
+      return (data || []) as AffiliateNetworkNode[];
+    },
+    enabled: !!affiliateId,
+  });
+}
+
+export function useAffiliateCommissions(affiliateId: string | null) {
+  return useQuery({
+    queryKey: ['affiliate-commissions', affiliateId],
+    queryFn: async () => {
+      if (!affiliateId) return [];
+      const { data, error } = await supabase
+        .from('affiliate_commissions')
+        .select('*')
+        .eq('affiliate_id', affiliateId)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return (data || []) as AffiliateCommission[];
+    },
+    enabled: !!affiliateId,
   });
 }

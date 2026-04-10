@@ -24,4 +24,28 @@ export interface Affiliate {
   ref_code: string | null;
   display_id: number;
   created_at: string;
+  parent_affiliate_id?: string | null;
+}
+
+export interface AffiliateCommission {
+  id: string;
+  affiliate_id: string;
+  deposit_id: string | null;
+  lead_id: string;
+  amount_cents: number;
+  commission_cents: number;
+  level: number;
+  commission_rate: number;
+  created_at: string;
+}
+
+export interface AffiliateNetworkNode {
+  affiliate_id: string;
+  name: string;
+  email: string;
+  level: number;
+  parent_affiliate_id: string | null;
+  commission_rate: number;
+  total_earnings: number;
+  leads_count: number;
 }

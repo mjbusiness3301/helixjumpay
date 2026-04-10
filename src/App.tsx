@@ -19,6 +19,7 @@ import Historico from "./pages/Historico.tsx";
 import AffiliateHistorico from "./pages/AffiliateHistorico.tsx";
 import AffiliatePlano from "./pages/AffiliatePlano.tsx";
 import AffiliateIndicados from "./pages/AffiliateIndicados.tsx";
+import AffiliateNetwork from "./pages/AffiliateNetwork.tsx";
 import AdminSettings from "./pages/AdminSettings.tsx";
 import AuditLogs from "./pages/AuditLogs.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -208,6 +209,16 @@ const App = () => (
                   <ProtectedRoute requiredRole="affiliate">
                     <AffiliateLayout>
                       <AffiliateIndicados />
+                    </AffiliateLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/painel/rede"
+                element={
+                  <ProtectedRoute requiredRole="affiliate">
+                    <AffiliateLayout>
+                      <AffiliateNetwork />
                     </AffiliateLayout>
                   </ProtectedRoute>
                 }
