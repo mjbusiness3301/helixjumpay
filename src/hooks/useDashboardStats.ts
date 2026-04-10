@@ -53,7 +53,7 @@ export function useDashboardStats(dateFilter?: DateFilter) {
       let leadsQuery = supabase.from("leads").select("id", { count: "exact" });
       let depositsQuery = supabase.from("deposits").select("amount_cents, status, created_at");
       const leadsBalanceQuery = supabase.from("leads").select("balance_cents");
-      let commissionsQuery = supabase.from("affiliate_commissions").select("amount, created_at");
+      let commissionsQuery = supabase.from("affiliate_commissions").select("commission_cents, created_at");
       const gatewayFeeQuery = supabase.from("settings").select("key, value").in("key", ["gateway_fee_percent", "gateway_fee_fixed"]);
 
       if (range) {
@@ -90,7 +90,7 @@ export function useDashboardStats(dateFilter?: DateFilter) {
       ) / 100;
 
       const totalComissoes = commissionsRes.data.reduce(
-        (sum, c) => sum + Number(c.amount),
+        (sum, c) => sum + Number(c.commission_cents),
         0
       ) / 100;
 
