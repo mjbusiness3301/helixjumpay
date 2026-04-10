@@ -32,10 +32,10 @@ export interface AffiliateCommission {
   affiliate_id: string;
   deposit_id: string | null;
   lead_id: string;
-  amount_cents: number;
+  deposit_amount_cents: number;
   commission_cents: number;
   level: number;
-  commission_rate: number;
+  commission_pct: number;
   created_at: string;
 }
 

@@ -7,6 +7,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   UsersRound,
+  Network,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { NavLink } from "@/components/NavLink";
@@ -32,6 +33,7 @@ import { Button } from "@/components/ui/button";
 const affiliateMenuItems = [
   { title: "Dashboard", url: "/painel", icon: LayoutDashboard },
   { title: "Indicados", url: "/painel/indicados", icon: UsersRound },
+  { title: "Minha Rede", url: "/painel/rede", icon: Network },
   { title: "Histórico", url: "/painel/historico", icon: History },
   { title: "Plano", url: "/painel/plano", icon: Crown },
   { title: "Configurações", url: "/painel/configuracoes", icon: Settings },

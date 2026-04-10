@@ -3,6 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, Users, Network } from "lucide-react";
 import { useAffiliateNetwork, useAffiliateCommissions } from "@/hooks/useAffiliates";
+import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import type { AffiliateNetworkNode } from "@/types/database";
 
 function levelLabel(level: number) {
@@ -22,7 +25,26 @@ function formatEuros(cents: number) {
 export default function AffiliateNetwork() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const affiliateId = searchParams.get("id");
+  const { user } = useAuth();
+
+  // Admin can pass ?id=xxx to view any affiliate's network
+  // Affiliates see their own network automatically
+  const idFromParams = searchParams.get("id");
+
+  const { data: myAffiliate } = useQuery({
+    queryKey: ["my-affiliate-id", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("affiliates")
+        .select("id")
+        .eq("user_id", user!.id)
+        .single();
+      return data;
+    },
+    enabled: !!user?.id && !idFromParams,
+  });
+
+  const affiliateId = idFromParams ?? myAffiliate?.id ?? null;
 
   const { data: network = [], isLoading: networkLoading } = useAffiliateNetwork(affiliateId);
   const { data: commissions = [], isLoading: commissionsLoading } = useAffiliateCommissions(affiliateId);
@@ -195,13 +217,13 @@ export default function AffiliateNetwork() {
                         </span>
                       </td>
                       <td className="py-2.5 px-3 text-right font-medium text-foreground whitespace-nowrap">
-                        {formatEuros(c.amount_cents)}
+                        {formatEuros(c.deposit_amount_cents)}
                       </td>
                       <td className="py-2.5 px-3 text-right font-semibold text-primary whitespace-nowrap">
                         {formatEuros(c.commission_cents)}
                       </td>
                       <td className="py-2.5 px-3 text-right text-muted-foreground whitespace-nowrap">
-                        {(c.commission_rate * 100).toFixed(1)}%
+                        {Number(c.commission_pct).toFixed(1)}%
                       </td>
                     </tr>
                   ))}
